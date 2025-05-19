@@ -42,35 +42,3 @@
 .toggle-track.dark .toggle-thumb {
   left: 47px;
 }
-
-.google-login-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  background: white;
-  color: #444;
-  font-weight: 600;
-  border: 1.5px solid #dadce0;
-  border-radius: 6px;
-  padding: 10px 16px;
-  font-size: 16px;
-  cursor: pointer;
-  box-shadow: 0 1px 3px rgb(60 64 67 / 0.3);
-  transition: box-shadow 0.3s ease, background-color 0.3s ease;
-  user-select: none;
-}
-
-.google-login-btn:hover {
-  box-shadow: 0 4px 8px rgb(60 64 67 / 0.4);
-  background-color: #f7f7f7;
-}
-
-.google-login-btn:active {
-  background-color: #e8e8e8;
-  box-shadow: 0 1px 2px rgb(60 64 67 / 0.2);
-}
-
-.google-login-btn svg {
-  width: 20px;
-  height: 20px;
-}

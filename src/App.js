@@ -1,12 +1,6 @@
 import React, { useEffect, useState } from "react";
 import "./App.css";
-import {
-  signInWithPopup,
-  signOut,
-  onAuthStateChanged,
-  GoogleAuthProvider
-} from "firebase/auth";
-import { db, auth } from "./firebaseConfig";
+import { db } from "./firebaseConfig";
 import {
   collection,
   doc,
@@ -17,8 +11,6 @@ import {
   deleteDoc,
 } from "firebase/firestore";
 
-const googleProvider = new GoogleAuthProvider();
-
 function App() {
   const [champions, setChampions] = useState([]);
   const [accounts, setAccounts] = useState([]);
@@ -27,31 +19,6 @@ function App() {
   const [newAccountName, setNewAccountName] = useState("");
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [showOnlyOwned, setShowOnlyOwned] = useState(false);
-  const [user, setUser] = useState(null);
-
-  // Autenticação
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setUser(user);
-    });
-    return () => unsubscribe();
-  }, []);
-
-  const login = async () => {
-    try {
-      await signInWithPopup(auth, googleProvider);
-    } catch (error) {
-      console.error("Erro ao fazer login:", error);
-    }
-  };
-
-  const logout = async () => {
-    try {
-      await signOut(auth);
-    } catch (error) {
-      console.error("Erro ao fazer logout:", error);
-    }
-  };
 
   // Tema escuro
   useEffect(() => {
@@ -63,7 +30,7 @@ function App() {
     localStorage.setItem("theme", isDarkMode ? "dark" : "light");
   }, [isDarkMode]);
 
-  // Carregar campeões
+  // Carregar campeões da API
   useEffect(() => {
     fetch(
       "https://ddragon.leagueoflegends.com/cdn/13.12.1/data/en_US/champion.json"
@@ -78,8 +45,6 @@ function App() {
 
   // Carregar contas e dados do Firestore
   useEffect(() => {
-    if (!user) return;
-
     async function fetchAccountsFromFirestore() {
       try {
         const snapshot = await getDocs(collection(db, "accounts"));
@@ -101,9 +66,9 @@ function App() {
     }
 
     fetchAccountsFromFirestore();
-  }, [user]);
+  }, []);
 
-  // Sincronizar alterações
+  // Sincronizar alterações com Firestore
   useEffect(() => {
     async function syncToFirestore() {
       try {
@@ -175,7 +140,12 @@ function App() {
   }
 
   async function removeAccount(accountToRemove) {
-    if (!window.confirm(`Tem certeza que deseja remover a conta "${accountToRemove}"?`)) return;
+    if (
+      !window.confirm(
+        `Tem certeza que deseja remover a conta "${accountToRemove}"?`
+      )
+    )
+      return;
 
     const updatedAccounts = accounts.filter((acc) => acc !== accountToRemove);
     const updatedOwnedChamps = { ...ownedChampsByAccount };
@@ -208,43 +178,6 @@ function App() {
     borderRadius: "4px",
   };
 
-  if (!user) {
-    return (
-      <div style={appStyle}>
-        <header style={{ display: "flex", justifyContent: "space-between", padding: "10px 20px" }}>
-          <h1>🎮 Continhas</h1>
-          <button className="google-login-btn" onClick={login} aria-label="Login com Google">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 533.5 544.3"
-              aria-hidden="true"
-              focusable="false"
-            >
-              <path
-                fill="#4285f4"
-                d="M533.5 278.4c0-18.8-1.5-37-4.4-54.6H272v103.3h146.9c-6.4 34.5-25.7 63.7-54.6 83.3v68h88.4c51.6-47.6 81.8-117.6 81.8-199.9z"
-              />
-              <path
-                fill="#34a853"
-                d="M272 544.3c73.5 0 135.3-24.3 180.4-65.9l-88.4-68c-24.5 16.4-55.7 26-92 26-70.7 0-130.7-47.7-152.2-111.5H29.6v69.9c45.2 89.3 137.4 149.5 242.4 149.5z"
-              />
-              <path
-                fill="#fbbc04"
-                d="M119.8 322.9c-10.7-32-10.7-66.5 0-98.5v-69.9H29.6c-38.9 76.6-38.9 167.7 0 244.3l90.2-75.9z"
-              />
-              <path
-                fill="#ea4335"
-                d="M272 107.7c39.9 0 75.7 13.7 103.9 40.6l77.9-77.9C406.9 24.3 345 0 272 0 167 0 74.8 60.2 29.6 149.5l90.2 75.9c21.5-63.8 81.5-111.5 152.2-111.5z"
-              />
-            </svg>
-            Login com Google
-          </button>
-        </header>
-        <p style={{ textAlign: "center", marginTop: "50px" }}>Faça login para acessar suas contas.</p>
-      </div>
-    );
-  }
-
   return (
     <div style={appStyle}>
       <header
@@ -261,22 +194,18 @@ function App() {
       >
         <h1 style={{ margin: 0 }}>🎮 Continhas</h1>
 
-        <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
-          <span>{user.displayName}</span>
-          <button onClick={logout}>🚪 Sair</button>
-          <div
-            onClick={() => setIsDarkMode(!isDarkMode)}
-            style={{
-              cursor: "pointer",
-              fontSize: "24px",
-              transition: "transform 0.2s",
-            }}
-            title="Alternar tema"
-            onMouseOver={(e) => (e.currentTarget.style.transform = "scale(1.1)")}
-            onMouseOut={(e) => (e.currentTarget.style.transform = "scale(1)")}
-          >
-            {isDarkMode ? "🌙" : "☀️"}
-          </div>
+        <div
+          onClick={() => setIsDarkMode(!isDarkMode)}
+          style={{
+            cursor: "pointer",
+            fontSize: "24px",
+            transition: "transform 0.2s",
+          }}
+          title="Alternar tema"
+          onMouseOver={(e) => (e.currentTarget.style.transform = "scale(1.1)")}
+          onMouseOut={(e) => (e.currentTarget.style.transform = "scale(1)")}
+        >
+          {isDarkMode ? "🌙" : "☀️"}
         </div>
       </header>
 
