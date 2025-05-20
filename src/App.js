@@ -1,5 +1,8 @@
 import React, { useEffect, useState } from "react";
 import "./App.css";
+import Login from "./login";
+import { auth } from "./firebaseConfig"; // <-- IMPORTANTE
+import { onAuthStateChanged, signOut } from "firebase/auth"; // <-- IMPORTANTE
 import { db } from "./firebaseConfig";
 import {
   collection,
@@ -19,6 +22,8 @@ function App() {
   const [newAccountName, setNewAccountName] = useState("");
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [showOnlyOwned, setShowOnlyOwned] = useState(false);
+  const [user, setUser] = useState(null); // <-- NOVO
+  const [loading, setLoading] = useState(true); // <-- NOVO
 
   // Tema escuro
   useEffect(() => {
@@ -29,6 +34,15 @@ function App() {
   useEffect(() => {
     localStorage.setItem("theme", isDarkMode ? "dark" : "light");
   }, [isDarkMode]);
+
+    useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+      setLoading(false);
+    });
+
+    return () => unsubscribe(); // limpa o listener
+  }, []);
 
   // Carregar campeões da API
   useEffect(() => {
@@ -90,6 +104,12 @@ function App() {
     }
   }, [accounts, ownedChampsByAccount]);
 
+  if (loading) return <p>Carregando...</p>;
+
+  if (!user) {
+    return <Login onLogin={(user) => setUser(user)} />;
+  }
+
   async function addAccount() {
     const trimmed = newAccountName.trim();
     if (!trimmed) return alert("Digite o nome da conta");
@@ -126,6 +146,11 @@ function App() {
     await updateDoc(doc(db, "accounts", selectedAccount), {
       ownedChamps: newOwned,
     });
+  }
+
+  async function handleLogout() {
+    await signOut(auth);
+    setUser(null);
   }
 
   function isOwned(champId) {
@@ -194,18 +219,34 @@ function App() {
       >
         <h1 style={{ margin: 0 }}>🎮 Continhas</h1>
 
-        <div
-          onClick={() => setIsDarkMode(!isDarkMode)}
-          style={{
-            cursor: "pointer",
-            fontSize: "24px",
-            transition: "transform 0.2s",
-          }}
-          title="Alternar tema"
-          onMouseOver={(e) => (e.currentTarget.style.transform = "scale(1.1)")}
-          onMouseOut={(e) => (e.currentTarget.style.transform = "scale(1)")}
-        >
-          {isDarkMode ? "🌙" : "☀️"}
+        <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+          <div
+            onClick={() => setIsDarkMode(!isDarkMode)}
+            style={{
+              cursor: "pointer",
+              fontSize: "24px",
+              transition: "transform 0.2s",
+            }}
+            title="Alternar tema"
+            onMouseOver={(e) => (e.currentTarget.style.transform = "scale(1.1)")}
+            onMouseOut={(e) => (e.currentTarget.style.transform = "scale(1)")}
+          >
+            {isDarkMode ? "🌙" : "☀️"}
+          </div>
+
+          <button
+            onClick={handleLogout}
+            style={{
+              backgroundColor: "#e53935",
+              color: "white",
+              padding: "6px 12px",
+              border: "none",
+              borderRadius: "4px",
+              cursor: "pointer",
+            }}
+          >
+            🚪 Sair
+          </button>
         </div>
       </header>
 
