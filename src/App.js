@@ -24,6 +24,8 @@ function App() {
   const [showOnlyOwned, setShowOnlyOwned] = useState(false);
   const [user, setUser] = useState(null); // <-- NOVO
   const [loading, setLoading] = useState(true); // <-- NOVO
+  const [accountDetails, setAccountDetails] = useState({});
+  const [showPassword, setShowPassword] = useState(false);
 
   // Tema escuro
   useEffect(() => {
@@ -64,15 +66,21 @@ function App() {
         const snapshot = await getDocs(collection(db, "accounts"));
         const accountsList = [];
         const champsData = {};
+        const details = {};
 
         snapshot.forEach((docSnap) => {
           const data = docSnap.data();
           accountsList.push(docSnap.id);
           champsData[docSnap.id] = data.ownedChamps || [];
+          details[docSnap.id] = {
+            login: data.login || "",
+            password: data.password || ""
+          };
         });
 
         setAccounts(accountsList);
         setOwnedChampsByAccount(champsData);
+        setAccountDetails(details);
         if (accountsList.length > 0) setSelectedAccount(accountsList[0]);
       } catch (error) {
         console.error("Erro ao buscar contas do Firestore:", error);
@@ -123,6 +131,8 @@ function App() {
 
     await setDoc(doc(db, "accounts", trimmed), {
       ownedChamps: [],
+      login: "",
+      password: "",
     });
   }
 
@@ -186,6 +196,23 @@ function App() {
     await deleteDoc(doc(db, "accounts", accountToRemove));
   }
 
+  async function saveLoginPassword() {
+    if (!selectedAccount) return;
+
+    const { login, password } = accountDetails[selectedAccount];
+
+    try {
+      await updateDoc(doc(db, "accounts", selectedAccount), {
+        login,
+        password,
+      });
+      alert("Login e senha salvos com sucesso!");
+    } catch (err) {
+      console.error("Erro ao salvar login/senha:", err);
+      alert("Erro ao salvar login/senha.");
+    }
+  }
+
   const appStyle = {
     backgroundColor: isDarkMode ? "#121212" : "#ffffff",
     color: isDarkMode ? "#ffffff" : "#1a1a1a",
@@ -200,7 +227,8 @@ function App() {
     color: isDarkMode ? "#ffffff" : "#000000",
     border: "1px solid #ccc",
     padding: "6px",
-    borderRadius: "4px",
+    borderRadius: "5px",
+    width: "90%"
   };
 
   return (
@@ -234,6 +262,7 @@ function App() {
             {isDarkMode ? "🌙" : "☀️"}
           </div>
 
+          {/*
           <button
             onClick={handleLogout}
             style={{
@@ -245,11 +274,14 @@ function App() {
               cursor: "pointer",
             }}
           >
-            🚪 Sair
+            Sair
           </button>
+          */}
         </div>
       </header>
 
+    <div style={{ display: "flex", gap: "20px", marginBottom: "30px", flexWrap: "wrap" }}>
+      {/* Box 1 - Gerenciar contas */}
       <div
         style={{
           backgroundColor: isDarkMode ? "#1f1f1f" : "#f9f9f9",
@@ -258,15 +290,23 @@ function App() {
           boxShadow: isDarkMode
             ? "0 2px 8px rgba(255,255,255,0.05)"
             : "0 2px 8px rgba(0,0,0,0.1)",
-          marginBottom: "30px",
           maxWidth: "500px",
+          flex: 1,
+          minWidth: "300px",
         }}
       >
         <h2 style={{ marginTop: 0 }}>Gerenciar Contas</h2>
 
         <div style={{ display: "flex", gap: "10px", marginBottom: "15px" }}>
           <input
-            style={{ ...inputStyle, flex: 1 }}
+            style={{ 
+              backgroundColor: isDarkMode ? "#1e1e1e" : "#ffffff",
+              color: isDarkMode ? "#ffffff" : "#000000",
+              border: "1px solid #ccc",
+              padding: "6px",
+              borderRadius: "4px",
+              flex: 1
+            }}
             placeholder="Nome da nova conta"
             value={newAccountName}
             onChange={(e) => setNewAccountName(e.target.value)}
@@ -289,7 +329,15 @@ function App() {
         <div style={{ marginBottom: "10px" }}>
           <label style={{ fontWeight: "bold" }}>Conta selecionada:</label>
           <select
-            style={{ ...inputStyle, width: "100%", marginTop: "5px" }}
+            style={{ 
+              backgroundColor: isDarkMode ? "#1e1e1e" : "#ffffff",
+              color: isDarkMode ? "#ffffff" : "#000000",
+              border: "1px solid #ccc",
+              padding: "6px",
+              borderRadius: "4px",
+              width: "100%",
+              marginTop: "5px"
+            }}
             value={selectedAccount}
             onChange={(e) => setSelectedAccount(e.target.value)}
           >
@@ -340,6 +388,100 @@ function App() {
           </>
         )}
       </div>
+
+    {/* Box 2 - Detalhes da conta */}
+    {selectedAccount && (
+      <div
+        style={{
+          backgroundColor: isDarkMode ? "#1f1f1f" : "#f9f9f9",
+          padding: "20px",
+          borderRadius: "10px",
+          boxShadow: isDarkMode
+            ? "0 2px 8px rgba(255,255,255,0.05)"
+            : "0 2px 8px rgba(0,0,0,0.1)",
+          maxWidth: "250px",
+          flex: 1,
+          minWidth: "100px",
+        }}
+      >
+        <h2 style={{ marginTop: 0 }}>Detalhes da Conta</h2>
+
+        <div style={{ display: "flex", flexDirection: "column", gap: "15px", marginBottom: "15px" }}>
+          <div>
+            <label style={{ fontWeight: "bold", display: "block", marginBottom: "5px" }}>Login:</label>
+            <div style={{ display: "flex", gap: "8px" }}>
+              <input
+                type="text"
+                value={accountDetails[selectedAccount]?.login || ""}
+                onChange={(e) =>
+                  setAccountDetails((prev) => ({
+                    ...prev,
+                    [selectedAccount]: {
+                      ...prev[selectedAccount],
+                      login: e.target.value,
+                    },
+                  }))
+                }
+                style={{ ...inputStyle, flex: 1 }}
+                placeholder="Digite o login"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label style={{ fontWeight: "bold", display: "block", marginBottom: "5px" }}>Senha:</label>
+              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                <input
+                  type={showPassword ? "text" : "password"}
+                  value={accountDetails[selectedAccount]?.password || ""}
+                  onChange={(e) =>
+                    setAccountDetails((prev) => ({
+                      ...prev,
+                      [selectedAccount]: {
+                        ...prev[selectedAccount],
+                        password: e.target.value,
+                      },
+                    }))
+                  }
+                  style={{ ...inputStyle, flex: 1 }}
+                  placeholder="Digite a senha"
+                />
+                <button
+                  onClick={() => setShowPassword(!showPassword)}
+                  style={{
+                    backgroundColor: "#ccc",
+                    border: "none",
+                    borderRadius: "5px",
+                    padding: "4px 8px",
+                    cursor: "pointer",
+                  }}
+                  title={showPassword ? "Ocultar senha" : "Mostrar senha"}
+                >
+                  {showPassword ? "🙈" : "🐵"}
+                </button>
+              </div>
+          </div>
+        </div>
+
+        <div style={{ display: "flex", justifyContent: "center", marginTop: "30px"}}> 
+          <button
+            onClick={saveLoginPassword}
+            style={{
+              backgroundColor: "#1976d2",
+              color: "white",
+              padding: "6px 12px",
+              border: "none",
+              borderRadius: "4px",
+              cursor: "pointer",
+            }}
+          >
+            Salvar
+          </button>
+        </div>
+      </div>
+    )}
+
+  </div>
 
       <div
         style={{
@@ -400,4 +542,3 @@ function App() {
 }
 
 export default App;
-
