@@ -344,7 +344,7 @@ function App() {
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
+          gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))",
           gap: "15px",
         }}
       >
@@ -390,7 +390,7 @@ function App() {
                     (e.currentTarget.style.transform = "scale(1)")
                   }
                 />
-                <p>{champ.name}</p>
+                <p style={{ fontSize: "0.85rem", margin: "6px 0" }}>{champ.name}</p>
               </div>
             );
           })}
