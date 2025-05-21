@@ -30,7 +30,7 @@ function App() {
   const [editedAccountName, setEditedAccountName] = useState("");
   const [selectedRole, setSelectedRole] = useState("");
   const championsByRole = {
-    Top: [
+    top: [
       "Aatrox",
       "Akali",
       "Camille",
@@ -81,7 +81,7 @@ function App() {
       "Zac",
       "Yone",
     ],
-    Jungle: [
+    jungle: [
       "Amumu",
       "Belveth",
       "Diana",
@@ -124,7 +124,7 @@ function App() {
       "XinZhao",
       "Zac",
     ],
-    Mid: [
+    mid: [
       "Ahri",
       "Akali",
       "Akshan",
@@ -167,7 +167,7 @@ function App() {
       "Ziggs",
       "Zoe",
     ],
-    Marksman: [
+    marksman: [
       "Aphelios",
       "Ashe",
       "Caitlyn",
@@ -193,7 +193,7 @@ function App() {
       "Zeri",
       "Ziggs",
     ],
-    Support: [
+    support: [
       "Alistar",
       "Ashe",
       "Bard",
@@ -900,7 +900,7 @@ function App() {
               }}
             >
               <span style={{ fontWeight: "bold" }}></span>
-              {["Top", "Jungle", "Mid", "Marksman", "Support"].map((role) => (
+              {["top", "jungle", "mid", "marksman", "support"].map((role) => (
                 <img
                   key={role}
                   src={`/lanes/${role.toLowerCase()}.webp`} // caminho das imagens
