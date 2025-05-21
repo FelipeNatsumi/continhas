@@ -7,7 +7,6 @@ import { db } from "./firebaseConfig";
 import {
   collection,
   doc,
-  getDoc,
   setDoc,
   updateDoc,
   getDocs,
@@ -570,22 +569,6 @@ function App() {
                 Campeões possuídos: {getOwnedCount()} / {champions.length}
               </p>
 
-              <label
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "8px",
-                  marginBottom: "10px",
-                }}
-              >
-                <input
-                  type="checkbox"
-                  checked={showOnlyOwned}
-                  onChange={(e) => setShowOnlyOwned(e.target.checked)}
-                />
-                Mostrar apenas possuídos
-              </label>
-
               {selectedAccount && (
                 <div
                   style={{ display: "flex", gap: "10px", marginTop: "10px" }}
@@ -881,21 +864,52 @@ function App() {
               boxShadow: isDarkMode
                 ? "0 2px 8px rgba(255,255,255,0.05)"
                 : "0 2px 8px rgba(0,0,0,0.1)",
-              maxWidth: "500px",
+              maxWidth: "400px",
               flex: 1,
               minWidth: "300px",
             }}
           >
             <h2 style={{ marginTop: 0 }}>Filtros</h2>
 
+            {/* Filtro por possuidos */}
+            <div style={{ display: "flex", alignItems: "center", gap: "10px", marginTop: "40px" }}>
+              <div
+                onClick={() => setShowOnlyOwned(!showOnlyOwned)}
+                style={{
+                  width: "40px",
+                  height: "20px",
+                  borderRadius: "20px",
+                  backgroundColor: showOnlyOwned ? "#4caf50" : "#666",
+                  position: "relative",
+                  cursor: "pointer",
+                  transition: "background-color 0.3s ease"
+                }}
+                title="Alternar filtro de possuídos"
+              >
+                <div
+                  style={{
+                    position: "absolute",
+                    top: "2px",
+                    left: showOnlyOwned ? "20px" : "2px",
+                    width: "16px",
+                    height: "16px",
+                    borderRadius: "50%",
+                    backgroundColor: "#fff",
+                    transition: "left 0.3s ease"
+                  }}
+                />
+              </div>
+              <span>Mostrar apenas possuídos</span>
+            </div>
+
             {/* Filtro por rota */}
             <div
               style={{
-                marginBottom: "20px",
+                marginTop: "50px",
                 display: "flex",
-                gap: "10px",
+                gap: "20px",
                 alignItems: "center",
-                justifyContent: "center", // CENTRALIZA HORIZONTALMENTE
+                justifyContent: "center",
                 flexWrap: "wrap",
               }}
             >
@@ -913,12 +927,25 @@ function App() {
                     width: "40px",
                     height: "40px",
                     cursor: "pointer",
+                    filter: selectedRole === role ? "none" : "grayscale(100%)",
                     borderRadius: "8px",
-                    transition: "transform 0.2s",
+                    transition: "all 0.3s ease",
+                    transform: selectedRole === role ? "scale(1.1)" : "scale(1)",
+                  }}
+                  onMouseOver={(e) => {
+                    if (selectedRole !== role) {
+                      e.currentTarget.style.filter = "none";
+                    }
+                  }}
+                  onMouseOut={(e) => {
+                    if (selectedRole !== role) {
+                      e.currentTarget.style.filter = "grayscale(100%)";
+                    }
                   }}
                 />
               ))}
             </div>
+
           </div>
         )}
       </div>
