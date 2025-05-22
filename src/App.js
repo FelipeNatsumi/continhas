@@ -260,18 +260,30 @@ function App() {
     return () => unsubscribe(); // limpa o listener
   }, []);
 
-  // Carregar campeões da API
-  useEffect(() => {
-    fetch(
-      "https://ddragon.leagueoflegends.com/cdn/13.12.1/data/en_US/champion.json",
-    )
-      .then((res) => res.json())
-      .then((data) => {
-        const champsArray = Object.values(data.data);
-        setChampions(champsArray);
-      })
-      .catch((err) => console.error(err));
-  }, []);
+// Carregar campeões da versão mais recente da Riot
+useEffect(() => {
+  const fetchChampions = async () => {
+    try {
+      // Passo 1: buscar a versão mais recente
+      const versionRes = await fetch("https://ddragon.leagueoflegends.com/api/versions.json");
+      const versions = await versionRes.json();
+      const latestVersion = versions[0];
+
+      // Passo 2: buscar os campeões usando a versão correta
+      const champsRes = await fetch(
+        `https://ddragon.leagueoflegends.com/cdn/${latestVersion}/data/en_US/champion.json`
+      );
+      const champsData = await champsRes.json();
+      const champsArray = Object.values(champsData.data);
+      setChampions(champsArray);
+    } catch (err) {
+      console.error("Erro ao carregar campeões:", err);
+    }
+  };
+
+  fetchChampions();
+}, []);
+
 
   // Carregar contas e dados do Firestore
   useEffect(() => {
@@ -544,34 +556,39 @@ function App() {
         >
           <h2 style={{ marginTop: 0 }}>Gerenciar Contas</h2>
 
-          <div style={{ display: "flex", gap: "10px", marginBottom: "15px" }}>
-            <input
-              style={{
-                backgroundColor: isDarkMode ? "#1e1e1e" : "#ffffff",
-                color: isDarkMode ? "#ffffff" : "#000000",
-                border: "1px solid #ccc",
-                padding: "6px",
-                borderRadius: "4px",
-                flex: 1,
-              }}
-              placeholder="Nome da nova conta"
-              value={newAccountName}
-              onChange={(e) => setNewAccountName(e.target.value)}
-            />
-            <button
-              onClick={addAccount}
-              style={{
-                backgroundColor: "#4caf50",
-                color: "white",
-                padding: "6px 12px",
-                border: "none",
-                borderRadius: "4px",
-                cursor: "pointer",
-              }}
-            >
-              ➕ Adicionar Conta
-            </button>
-          </div>
+<div style={{ marginBottom: "15px" }}>
+  <label style={{ fontWeight: "bold", marginBottom: "6px", display: "block" }}>
+    Criar nova conta
+  </label>
+  <div style={{ display: "flex", gap: "10px" }}>
+    <input
+      style={{
+        backgroundColor: isDarkMode ? "#1e1e1e" : "#ffffff",
+        color: isDarkMode ? "#ffffff" : "#000000",
+        border: "1px solid #ccc",
+        padding: "6px",
+        borderRadius: "4px",
+        flex: 1,
+      }}
+      placeholder="Nome da nova conta"
+      value={newAccountName}
+      onChange={(e) => setNewAccountName(e.target.value)}
+    />
+    <button
+      onClick={addAccount}
+      style={{
+        backgroundColor: "#4caf50",
+        color: "white",
+        padding: "6px 12px",
+        border: "none",
+        borderRadius: "4px",
+        cursor: "pointer",
+      }}
+    >
+      ➕ Adicionar Conta
+    </button>
+  </div>
+</div>
 
           <div style={{ marginBottom: "10px" }}>
             <label style={{ fontWeight: "bold" }}>Conta selecionada:</label>
@@ -861,6 +878,7 @@ function App() {
                   border: "none",
                   borderRadius: "4px",
                   cursor: "pointer",
+                  margin: "18px",
                 }}
               >
                 Salvar
@@ -972,11 +990,10 @@ function App() {
                       </div>
 
                       {/* Inputs de Wins (W) e Losses (L) */}
-                      {/* Linha: W: [input]   L: [input] */}
                       <div style={{ marginBottom: "10px", width: "100%" }}>
                         <div style={{ display: "flex", gap: "20px", flexWrap: "wrap" }}>
                           <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                            <span style={{ fontWeight: "bold", fontSize: "13px", lineHeight: "1" }}>W:</span>
+                            <span style={{ fontWeight: "bold", fontSize: "13px", lineHeight: "1" }}>Wins:</span>
                             <input
                               type="number"
                               min="0"
@@ -1010,7 +1027,7 @@ function App() {
                           </div>
 
                           <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                            <span style={{ fontWeight: "bold", fontSize: "13px", lineHeight: "1" }}>L:</span>
+                            <span style={{ fontWeight: "bold", fontSize: "13px", lineHeight: "1" }}>Losses:</span>
                             <input
                               type="number"
                               min="0"
