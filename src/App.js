@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import "./App.css";
 import Login from "./login";
-import { auth } from "./firebaseConfig"; // <-- IMPORTANTE
-import { onAuthStateChanged, signOut } from "firebase/auth"; // <-- IMPORTANTE
+import { auth } from "./firebaseConfig";
+import { onAuthStateChanged, signOut } from "firebase/auth";
 import { db } from "./firebaseConfig";
 import {
   collection,
@@ -230,6 +230,16 @@ function App() {
       "Zyra",
     ],
   };
+  const [selectedQueue, setSelectedQueue] = useState("Solo/Duo");
+  const [eloDataByAccount, setEloDataByAccount] = useState({});
+
+  function getQueueKey(queueLabel) {
+    return queueLabel === "Flex" ? "flex" : "soloDuo";
+  }
+
+  function getQueueName(queueLabel) {
+    return queueLabel === "Flex" ? "flex" : "soloDuo";
+  }
 
   // Tema escuro
   useEffect(() => {
@@ -271,6 +281,7 @@ function App() {
         const accountsList = [];
         const champsData = {};
         const details = {};
+        const eloData = {};
 
         snapshot.forEach((docSnap) => {
           const data = docSnap.data();
@@ -280,11 +291,28 @@ function App() {
             login: data.login || "",
             password: data.password || "",
           };
+          eloData[docSnap.id] = data.ranked || {
+            soloDuo: {
+              tier: "",
+              division: "",
+              wins: 0,
+              losses: 0,
+              queue: "soloDUO",
+            },
+            flex: {
+              tier: "",
+              division: "",
+              wins: 0,
+              losses: 0,
+              queue: "flex",
+            }
+          };
         });
 
         setAccounts(accountsList);
         setOwnedChampsByAccount(champsData);
         setAccountDetails(details);
+        setEloDataByAccount(eloData);
         if (accountsList.length > 0) setSelectedAccount(accountsList[0]);
       } catch (error) {
         console.error("Erro ao buscar contas do Firestore:", error);
@@ -300,10 +328,14 @@ function App() {
       try {
         for (const account of accounts) {
           const owned = ownedChampsByAccount[account] || [];
+
           await setDoc(
             doc(db, "accounts", account),
-            { ownedChamps: owned },
-            { merge: true },
+            {
+              ownedChamps: owned,
+              ranked: eloDataByAccount[account] || {},
+            },
+            { merge: true }
           );
         }
       } catch (error) {
@@ -314,7 +346,7 @@ function App() {
     if (accounts.length > 0) {
       syncToFirestore();
     }
-  }, [accounts, ownedChampsByAccount]);
+  }, [accounts, ownedChampsByAccount, eloDataByAccount]);
 
   if (loading) return <p>Carregando...</p>;
 
@@ -362,10 +394,12 @@ function App() {
     });
   }
 
+  {/*
   async function handleLogout() {
     await signOut(auth);
     setUser(null);
   }
+  */}
 
   function isOwned(champId) {
     if (!selectedAccount) return false;
@@ -845,12 +879,204 @@ function App() {
               boxShadow: isDarkMode
                 ? "0 2px 8px rgba(255,255,255,0.05)"
                 : "0 2px 8px rgba(0,0,0,0.1)",
-              maxWidth: "500px",
+              maxWidth: "600px",
               flex: 1,
-              minWidth: "300px",
+              minWidth: "350px",
             }}
           >
             <h2 style={{ marginTop: 0 }}>Elo</h2>
+
+            {/* Seletor de fila */}
+            <div style={{ marginBottom: "15px" }}>
+              <label style={{ fontWeight: "bold" }}>Fila:</label>
+              <select
+                style={{ ...inputStyle, width: "100%", marginTop: "5px" }}
+                value={selectedQueue}
+                onChange={(e) => setSelectedQueue(e.target.value)}
+              >
+                <option value="Solo/Duo">Solo/Duo</option>
+                <option value="Flex">Flex</option>
+              </select>
+            </div>
+
+            {/* Carregando dados da fila atual */}
+            {(() => {
+              const queueKey = getQueueKey(selectedQueue);
+              const currentData = eloDataByAccount[selectedAccount]?.[queueKey] || {};
+
+              return (
+                <>
+                  {/* Tier + Divisão */}
+                  <div style={{ display: "flex", alignItems: "flex-start", gap: "15px", marginBottom: "15px" }}>
+                    <img
+                      src={`/emblems/${currentData.tier || "unranked"}.webp`}
+                      alt="Elo"
+                      style={{ width: "130px", height: "130px", objectFit: "contain" }}
+                    />
+                    <div style={{ flex: 1 }}>
+                      {/* Selects de Tier + Divisão */}
+                      <div style={{ display: "flex", gap: "10px", marginBottom: "10px" }}>
+                        <select
+                          style={{ ...inputStyle, flex: 1.6 }}
+                          value={currentData.tier || ""}
+                          onChange={(e) =>
+                            setEloDataByAccount((prev) => ({
+                              ...prev,
+                              [selectedAccount]: {
+                                ...prev[selectedAccount],
+                                [queueKey]: {
+                                  ...prev[selectedAccount]?.[queueKey],
+                                  tier: e.target.value,
+                                  queue: getQueueName(selectedQueue),
+                                },
+                              },
+                            }))
+                          }
+                        >
+                          <option value="">Tier</option>
+                          <option value="unranked">Unranked</option>
+                          <option value="iron">Iron</option>
+                          <option value="bronze">Bronze</option>
+                          <option value="silver">Silver</option>
+                          <option value="gold">Gold</option>
+                          <option value="platinum">Platinum</option>
+                          <option value="emerald">Emerald</option>
+                          <option value="diamond">Diamond</option>
+                          <option value="master">Master</option>
+                          <option value="grandmaster">Grandmaster</option>
+                          <option value="challenger">Challenger</option>
+                        </select>
+
+                        <select
+                          style={{ ...inputStyle, flex: 1 }}
+                          value={currentData.division || ""}
+                          onChange={(e) =>
+                            setEloDataByAccount((prev) => ({
+                              ...prev,
+                              [selectedAccount]: {
+                                ...prev[selectedAccount],
+                                [queueKey]: {
+                                  ...prev[selectedAccount]?.[queueKey],
+                                  division: e.target.value,
+                                },
+                              },
+                            }))
+                          }
+                        >
+                          <option value="">Divisão</option>
+                          <option value="IV">IV</option>
+                          <option value="III">III</option>
+                          <option value="II">II</option>
+                          <option value="I">I</option>
+                        </select>
+                      </div>
+
+                      {/* Inputs de Wins (W) e Losses (L) */}
+                      {/* Linha: W: [input]   L: [input] */}
+                      <div style={{ marginBottom: "10px", width: "100%" }}>
+                        <div style={{ display: "flex", gap: "20px", flexWrap: "wrap" }}>
+                          <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                            <span style={{ fontWeight: "bold", fontSize: "13px", lineHeight: "1" }}>W:</span>
+                            <input
+                              type="number"
+                              min="0"
+                              placeholder="0"
+                              style={{
+                                ...inputStyle,
+                                width: "60px",
+                                padding: "4px 6px",
+                                border: "none",
+                                outline: "none",
+                                backgroundColor: "transparent",
+                                color: isDarkMode ? "#fff" : "#000",
+                                WebkitAppearance: "none",
+                                MozAppearance: "textfield",
+                                appearance: "textfield",
+                              }}
+                              value={currentData.wins || 0}
+                              onChange={(e) =>
+                                setEloDataByAccount((prev) => ({
+                                  ...prev,
+                                  [selectedAccount]: {
+                                    ...prev[selectedAccount],
+                                    [queueKey]: {
+                                      ...prev[selectedAccount]?.[queueKey],
+                                      wins: parseInt(e.target.value) || 0,
+                                    },
+                                  },
+                                }))
+                              }
+                            />
+                          </div>
+
+                          <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                            <span style={{ fontWeight: "bold", fontSize: "13px", lineHeight: "1" }}>L:</span>
+                            <input
+                              type="number"
+                              min="0"
+                              placeholder="0"
+                              style={{
+                                ...inputStyle,
+                                width: "60px",
+                                padding: "4px 6px",
+                                border: "none",
+                                outline: "none",
+                                backgroundColor: "transparent",
+                                color: isDarkMode ? "#fff" : "#000",
+                                WebkitAppearance: "none",
+                                MozAppearance: "textfield",
+                                appearance: "textfield",
+                              }}
+                              value={currentData.losses || 0}
+                              onChange={(e) =>
+                                setEloDataByAccount((prev) => ({
+                                  ...prev,
+                                  [selectedAccount]: {
+                                    ...prev[selectedAccount],
+                                    [queueKey]: {
+                                      ...prev[selectedAccount]?.[queueKey],
+                                      losses: parseInt(e.target.value) || 0,
+                                    },
+                                  },
+                                }))
+                              }
+                            />
+                          </div>
+                        </div>
+
+                        {/* Win Rate */}
+                        <div style={{ marginTop: "8px" }}>
+                          <span style={{ fontSize: "13px" }}>Win Rate:</span>{" "}
+                          <span style={{
+                            fontSize: "13px",
+                            fontWeight: "bold",
+                            color: (() => {
+                              const wins = currentData.wins || 0;
+                              const losses = currentData.losses || 0;
+                              const total = wins + losses;
+                              if (total === 0) return "#888"; // cinza
+                              const rate = (wins / total) * 100;
+                              if (rate < 40) return "red";
+                              if (rate >= 40 && rate < 50) return "orange";
+                              if (rate === 50) return "#888"; // cinza
+                              if (rate > 50 && rate < 80) return "green";
+                              return "blue";
+                            })()
+                          }}>
+                            {(() => {
+                              const wins = currentData.wins || 0;
+                              const losses = currentData.losses || 0;
+                              const total = wins + losses;
+                              return total === 0 ? "0%" : `${((wins / total) * 100).toFixed(1)}%`;
+                            })()}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </>
+              );
+            })()}
           </div>
         )}
 
@@ -864,7 +1090,7 @@ function App() {
               boxShadow: isDarkMode
                 ? "0 2px 8px rgba(255,255,255,0.05)"
                 : "0 2px 8px rgba(0,0,0,0.1)",
-              maxWidth: "400px",
+              maxWidth: "300px",
               flex: 1,
               minWidth: "300px",
             }}
