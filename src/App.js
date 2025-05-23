@@ -384,6 +384,61 @@ function App() {
     });
   }
 
+async function atualizarEloAutomaticamente() {
+  try {
+    if (!selectedAccount.includes("#")) {
+      return alert("Conta selecionada deve estar no formato nome#tag.");
+    }
+
+    const [gameName, tagLine] = selectedAccount.split("#");
+    if (!gameName || !tagLine) {
+      return alert("Formato inválido. Use nome#tag.");
+    }
+
+    const response = await fetch(`/api/getRankedData?gameName=${encodeURIComponent(gameName)}&tagLine=${encodeURIComponent(tagLine)}`);
+
+    const text = await response.text(); // Lê a resposta como texto bruto (JSON ou erro HTML)
+    
+    try {
+      const { rankedData } = JSON.parse(text); // Agora tenta converter em JSON
+      const soloDuo = rankedData.find(entry => entry.queueType === "RANKED_SOLO_5x5");
+      const flex = rankedData.find(entry => entry.queueType === "RANKED_FLEX_SR");
+
+      setEloDataByAccount(prev => ({
+        ...prev,
+        [selectedAccount]: {
+          soloDuo: soloDuo ? {
+            tier: soloDuo.tier.toLowerCase(),
+            division: soloDuo.rank,
+            wins: soloDuo.wins,
+            losses: soloDuo.losses,
+            lp: soloDuo.leaguePoints,
+            queue: "soloDuo",
+          } : {},
+          flex: flex ? {
+            tier: flex.tier.toLowerCase(),
+            division: flex.rank,
+            wins: flex.wins,
+            losses: flex.losses,
+            lp: flex.leaguePoints,
+            queue: "flex",
+          } : {},
+        }
+      }));
+
+      alert("Elo atualizado com sucesso!");
+    } catch (jsonErr) {
+      console.error("Erro ao converter resposta em JSON:", text);
+      alert("Erro inesperado da API. Veja o console.");
+    }
+  } catch (err) {
+    console.error("Erro na requisição:", err);
+    alert("Erro ao atualizar elo automaticamente.");
+  }
+}
+
+
+
   async function toggleChampion(champId) {
     if (!selectedAccount) {
       alert("Selecione uma conta primeiro");
@@ -560,7 +615,7 @@ function App() {
             boxShadow: isDarkMode
               ? "0 2px 8px rgba(255,255,255,0.05)"
               : "0 2px 8px rgba(0,0,0,0.1)",
-            maxWidth: "500px",
+            maxWidth: "350px",
             flex: 1,
             minWidth: "300px",
           }}
@@ -580,7 +635,7 @@ function App() {
               />
               <button
                 onClick={addAccount}
-                style={{...buttonstyle, backgroundColor: "#4caf50",}}
+                style={{ ...buttonstyle, backgroundColor: "#4caf50", }}
               >
                 ➕ Adicionar Conta
               </button>
@@ -611,135 +666,119 @@ function App() {
                     navigator.clipboard.writeText(selectedAccount);
                   }
                 }}
-                title="Copiar nome da conta"
-                style={{ ...buttonstyle, backgroundColor: isDarkMode ? "#1e1e1e" : "#fff" }}
+                title="Copy"
+                style={{ ...buttonstyle, backgroundColor: isDarkMode ? "#1e1e1e" : "#fff", fontSize: "16px"}}
               >
                 ✏️
               </button>
             </div>
           </div>
 
-
           {selectedAccount && (
-            <>
+            <div style={{ display: "flex", gap: "10px", marginTop: "15px", flexWrap: "wrap" }}>
+              {isEditingAccountName ? (
+                <>
+                  <input
+                    type="text"
+                    value={editedAccountName}
+                    onChange={(e) => setEditedAccountName(e.target.value)}
+                    style={{ ...inputStyle, flex: 1 }}
+                  />
+                  <button
+                    onClick={async () => {
+                      const newName = editedAccountName.trim();
+                      if (!newName) {
+                        alert("O nome da conta não pode estar vazio");
+                        return;
+                      }
+                      if (accounts.includes(newName)) {
+                        alert("Já existe uma conta com esse nome");
+                        return;
+                      }
 
-              {selectedAccount && (
-                <div
-                  style={{ display: "flex", gap: "10px", marginTop: "15px" }}
-                >
-                  {isEditingAccountName ? (
-                    <>
-                      <input
-                        type="text"
-                        value={editedAccountName}
-                        onChange={(e) => setEditedAccountName(e.target.value)}
-                        style={{ ...inputStyle, flex: 1, display: "flex", alignItems: "center" }}
-                      />
-                      <button
-                        onClick={async () => {
-                          const newName = editedAccountName.trim();
-                          if (!newName) {
-                            alert("O nome da conta não pode estar vazio");
-                            return;
-                          }
-                          if (accounts.includes(newName)) {
-                            alert("Já existe uma conta com esse nome");
-                            return;
-                          }
+                      const oldName = selectedAccount;
+                      const owned = ownedChampsByAccount[oldName] || [];
+                      const details = accountDetails[oldName] || { login: "", password: "" };
 
-                          // Copiar dados da conta antiga para a nova
-                          const oldName = selectedAccount;
-                          const owned = ownedChampsByAccount[oldName] || [];
-                          const details = accountDetails[oldName] || {
-                            login: "",
-                            password: "",
-                          };
+                      try {
+                        await setDoc(doc(db, "accounts", newName), {
+                          ownedChamps: owned,
+                          login: details.login,
+                          password: details.password,
+                        });
 
-                          try {
-                            // Criar novo doc com os dados
-                            await setDoc(doc(db, "accounts", newName), {
-                              ownedChamps: owned,
-                              login: details.login,
-                              password: details.password,
-                            });
+                        await deleteDoc(doc(db, "accounts", oldName));
 
-                            // Remover doc antigo
-                            await deleteDoc(doc(db, "accounts", oldName));
+                        setAccounts((prev) =>
+                          prev.map((acc) => (acc === oldName ? newName : acc))
+                        );
+                        setOwnedChampsByAccount((prev) => {
+                          const copy = { ...prev };
+                          copy[newName] = copy[oldName];
+                          delete copy[oldName];
+                          return copy;
+                        });
+                        setAccountDetails((prev) => {
+                          const copy = { ...prev };
+                          copy[newName] = copy[oldName];
+                          delete copy[oldName];
+                          return copy;
+                        });
 
-                            // Atualizar estados locais
-                            setAccounts((prev) =>
-                              prev.map((acc) =>
-                                acc === oldName ? newName : acc,
-                              ),
-                            );
-
-                            setOwnedChampsByAccount((prev) => {
-                              const copy = { ...prev };
-                              copy[newName] = copy[oldName];
-                              delete copy[oldName];
-                              return copy;
-                            });
-
-                            setAccountDetails((prev) => {
-                              const copy = { ...prev };
-                              copy[newName] = copy[oldName];
-                              delete copy[oldName];
-                              return copy;
-                            });
-
-                            setSelectedAccount(newName);
-                            setIsEditingAccountName(false);
-                            alert("Nome da conta atualizado com sucesso!");
-                          } catch (error) {
-                            console.error("Erro ao renomear conta:", error);
-                            alert("Erro ao atualizar o nome da conta.");
-                          }
-                        }}
-                        style={{ ...buttonstyle, backgroundColor: "#1976d2", height:"30px", display: "flex", alignItems: "center",}}
-                      >
-                        Salvar
-                      </button>
-                      <button
-                        onClick={() => setIsEditingAccountName(false)}
-                        style={{ ...buttonstyle, backgroundColor: "#e53935", height:"30px", display: "flex", alignItems: "center",}}
-                      >
-                        Cancelar
-                      </button>
-                    </>
-                  ) : (
-                    <button
-                      onClick={() => {
-                        setIsEditingAccountName(true);
-                        setEditedAccountName(selectedAccount);
-                      }}
-                      style={{
-                        ...buttonstyle,
-                        backgroundColor: "#f0ad4e",
-                        display: "flex",
-                        alignItems: "center",                        
-                        marginRight: "auto",
-                      }}
-                    >
-                      Editar Conta
-                    </button>
-                  )}
-
+                        setSelectedAccount(newName);
+                        setIsEditingAccountName(false);
+                        alert("Nome da conta atualizado com sucesso!");
+                      } catch (error) {
+                        console.error("Erro ao renomear conta:", error);
+                        alert("Erro ao atualizar o nome da conta.");
+                      }
+                    }}
+                    style={{ ...buttonstyle, backgroundColor: "#1976d2", height: "32px" }}
+                  >
+                    Salvar
+                  </button>
+                  <button
+                    onClick={() => setIsEditingAccountName(false)}
+                    style={{ ...buttonstyle, backgroundColor: "#e53935", height: "32px" }}
+                  >
+                    Cancelar
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button
+                    onClick={() => {
+                      setIsEditingAccountName(true);
+                      setEditedAccountName(selectedAccount);
+                    }}
+                    style={{
+                      ...buttonstyle,
+                      backgroundColor: "#f0ad4e",
+                      display: "flex",
+                      alignItems: "center",
+                      marginRight: "auto",
+                      height: "32px",
+                    }}
+                  >
+                    Editar Conta
+                  </button>
                   <button
                     onClick={() => removeAccount(selectedAccount)}
                     style={{
                       ...buttonstyle,
                       backgroundColor: "#e53935",
                       display: "flex",
-                      alignItems: "center",                     
-                      maxHeight: "30px"
+                      alignItems: "center",
+                      Height: "32px",
                     }}
                   >
                     🗑️ Remover Conta
                   </button>
-                </div>
+                </>
               )}
-            </>
+            </div>
           )}
+
         </div>
 
         {/* Box 2 - Detalhes da conta */}
@@ -754,7 +793,7 @@ function App() {
                 : "0 2px 8px rgba(0,0,0,0.1)",
               maxWidth: "250px",
               flex: 1,
-              minWidth: "100px",
+              minWidth: "200px",
             }}
           >
             <h2 style={{ marginTop: 0 }}>Dados da Conta</h2>
@@ -832,9 +871,9 @@ function App() {
                       borderRadius: "5px",
                       padding: "4px 8px",
                       cursor: "pointer",
-                      fontSize: "16px",
+                      fontSize: "18px",
                     }}
-                    title={showPassword ? "Ocultar senha" : "Mostrar senha"}
+                    title={showPassword ? "Hide" : "Show"}
                   >
                     {showPassword ? "🙈" : "🐵"}
                   </button>
@@ -848,6 +887,7 @@ function App() {
                 style={{
                   ...buttonstyle,
                   backgroundColor: "#1976d2",
+                  height: "32px",
                 }}
               >
                 Salvar
@@ -866,12 +906,19 @@ function App() {
               boxShadow: isDarkMode
                 ? "0 2px 8px rgba(255,255,255,0.05)"
                 : "0 2px 8px rgba(0,0,0,0.1)",
-              maxWidth: "600px",
+              maxWidth: "400px",
               flex: 1,
-              minWidth: "350px",
+              minWidth: "400px",
             }}
           >
             <h2 style={{ marginTop: 0 }}>Elo</h2>
+
+            <button
+              onClick={atualizarEloAutomaticamente}
+              style={{ ...buttonstyle, backgroundColor: "#2196f3", marginBottom: "15px" }}
+            >
+              🔄 Atualizar Elo com API da Riot
+            </button>
 
             {/* Seletor de fila */}
             <div style={{ marginBottom: "15px" }}>
@@ -894,11 +941,11 @@ function App() {
               return (
                 <>
                   {/* Tier + Divisão */}
-                  <div style={{ display: "flex", alignItems: "flex-start", gap: "15px", marginBottom: "15px" }}>
+                  <div style={{ display: "flex", alignItems: "flex-start", gap: "15px" }}>
                     <img
                       src={`/emblems/${currentData.tier || "unranked"}.webp`}
                       alt="Elo"
-                      style={{ width: "130px", height: "130px", objectFit: "contain" }}
+                      style={{ width: "120px", height: "120px", objectFit: "contain" }}
                     />
                     <div style={{ flex: 1 }}>
                       {/* Selects de Tier + Divisão */}
@@ -1146,7 +1193,7 @@ function App() {
               style={{
                 marginTop: "50px",
                 display: "flex",
-                gap: "20px",
+                gap: "10px",
                 alignItems: "center",
                 justifyContent: "center",
                 flexWrap: "wrap",
