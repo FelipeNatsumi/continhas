@@ -260,29 +260,29 @@ function App() {
     return () => unsubscribe(); // limpa o listener
   }, []);
 
-// Carregar campeões da versão mais recente da Riot
-useEffect(() => {
-  const fetchChampions = async () => {
-    try {
-      // Passo 1: buscar a versão mais recente
-      const versionRes = await fetch("https://ddragon.leagueoflegends.com/api/versions.json");
-      const versions = await versionRes.json();
-      const latestVersion = versions[0];
+  // Carregar campeões da versão mais recente da Riot
+  useEffect(() => {
+    const fetchChampions = async () => {
+      try {
+        // Passo 1: buscar a versão mais recente
+        const versionRes = await fetch("https://ddragon.leagueoflegends.com/api/versions.json");
+        const versions = await versionRes.json();
+        const latestVersion = versions[0];
 
-      // Passo 2: buscar os campeões usando a versão correta
-      const champsRes = await fetch(
-        `https://ddragon.leagueoflegends.com/cdn/${latestVersion}/data/en_US/champion.json`
-      );
-      const champsData = await champsRes.json();
-      const champsArray = Object.values(champsData.data);
-      setChampions(champsArray);
-    } catch (err) {
-      console.error("Erro ao carregar campeões:", err);
-    }
-  };
+        // Passo 2: buscar os campeões usando a versão correta
+        const champsRes = await fetch(
+          `https://ddragon.leagueoflegends.com/cdn/${latestVersion}/data/en_US/champion.json`
+        );
+        const champsData = await champsRes.json();
+        const champsArray = Object.values(champsData.data);
+        setChampions(champsArray);
+      } catch (err) {
+        console.error("Erro ao carregar campeões:", err);
+      }
+    };
 
-  fetchChampions();
-}, []);
+    fetchChampions();
+  }, []);
 
 
   // Carregar contas e dados do Firestore
@@ -479,7 +479,18 @@ useEffect(() => {
     padding: "6px",
     borderRadius: "5px",
     width: "90%",
+    height: "32px",
+    boxSizing: "border-box",
   };
+
+  const buttonstyle = {
+    color: "white",
+    padding: "6px 12px",
+    border: "none",
+    borderRadius: "4px",
+    cursor: "pointer",
+  };
+
 
   return (
     <div style={appStyle}>
@@ -556,73 +567,65 @@ useEffect(() => {
         >
           <h2 style={{ marginTop: 0 }}>Gerenciar Contas</h2>
 
-<div style={{ marginBottom: "15px" }}>
-  <label style={{ fontWeight: "bold", marginBottom: "6px", display: "block" }}>
-    Criar nova conta
-  </label>
-  <div style={{ display: "flex", gap: "10px" }}>
-    <input
-      style={{
-        backgroundColor: isDarkMode ? "#1e1e1e" : "#ffffff",
-        color: isDarkMode ? "#ffffff" : "#000000",
-        border: "1px solid #ccc",
-        padding: "6px",
-        borderRadius: "4px",
-        flex: 1,
-      }}
-      placeholder="Nome da nova conta"
-      value={newAccountName}
-      onChange={(e) => setNewAccountName(e.target.value)}
-    />
-    <button
-      onClick={addAccount}
-      style={{
-        backgroundColor: "#4caf50",
-        color: "white",
-        padding: "6px 12px",
-        border: "none",
-        borderRadius: "4px",
-        cursor: "pointer",
-      }}
-    >
-      ➕ Adicionar Conta
-    </button>
-  </div>
-</div>
+          <div style={{ marginBottom: "15px" }}>
+            <label style={{ fontWeight: "bold", marginBottom: "6px", display: "block" }}>
+              Criar nova conta
+            </label>
+            <div style={{ display: "flex", gap: "10px" }}>
+              <input
+                style={{ ...inputStyle, flex: 1 }}
+                placeholder="Nome da nova conta"
+                value={newAccountName}
+                onChange={(e) => setNewAccountName(e.target.value)}
+              />
+              <button
+                onClick={addAccount}
+                style={{...buttonstyle, backgroundColor: "#4caf50",}}
+              >
+                ➕ Adicionar Conta
+              </button>
+            </div>
+          </div>
 
           <div style={{ marginBottom: "10px" }}>
-            <label style={{ fontWeight: "bold" }}>Conta selecionada:</label>
-            <select
-              style={{
-                backgroundColor: isDarkMode ? "#1e1e1e" : "#ffffff",
-                color: isDarkMode ? "#ffffff" : "#000000",
-                border: "1px solid #ccc",
-                padding: "6px",
-                borderRadius: "4px",
-                width: "100%",
-                marginTop: "5px",
-              }}
-              value={selectedAccount}
-              onChange={(e) => setSelectedAccount(e.target.value)}
-            >
-              <option value="">-- Selecione uma conta --</option>
-              {accounts.map((acc) => (
-                <option key={acc} value={acc}>
-                  {acc}
-                </option>
-              ))}
-            </select>
+            <label style={{ fontWeight: "bold", display: "block", marginBottom: "6px" }}>
+              Conta selecionada:
+            </label>
+            <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+              <select
+                style={{ ...inputStyle, flex: 1 }}
+                value={selectedAccount}
+                onChange={(e) => setSelectedAccount(e.target.value)}
+              >
+                <option value="">-- Selecione uma conta --</option>
+                {accounts.map((acc) => (
+                  <option key={acc} value={acc}>
+                    {acc}
+                  </option>
+                ))}
+              </select>
+
+              <button
+                onClick={() => {
+                  if (selectedAccount) {
+                    navigator.clipboard.writeText(selectedAccount);
+                  }
+                }}
+                title="Copiar nome da conta"
+                style={{ ...buttonstyle, backgroundColor: isDarkMode ? "#1e1e1e" : "#fff" }}
+              >
+                ✏️
+              </button>
+            </div>
           </div>
+
 
           {selectedAccount && (
             <>
-              <p style={{ fontWeight: "bold", margin: "10px 0 5px" }}>
-                Campeões possuídos: {getOwnedCount()} / {champions.length}
-              </p>
 
               {selectedAccount && (
                 <div
-                  style={{ display: "flex", gap: "10px", marginTop: "10px" }}
+                  style={{ display: "flex", gap: "10px", marginTop: "15px" }}
                 >
                   {isEditingAccountName ? (
                     <>
@@ -630,14 +633,7 @@ useEffect(() => {
                         type="text"
                         value={editedAccountName}
                         onChange={(e) => setEditedAccountName(e.target.value)}
-                        style={{
-                          flex: 1,
-                          padding: "6px",
-                          borderRadius: "4px",
-                          border: "1px solid #ccc",
-                          backgroundColor: isDarkMode ? "#1e1e1e" : "#fff",
-                          color: isDarkMode ? "#fff" : "#000",
-                        }}
+                        style={{ ...inputStyle, flex: 1, display: "flex", alignItems: "center" }}
                       />
                       <button
                         onClick={async () => {
@@ -699,27 +695,13 @@ useEffect(() => {
                             alert("Erro ao atualizar o nome da conta.");
                           }
                         }}
-                        style={{
-                          backgroundColor: "#1976d2",
-                          color: "white",
-                          padding: "6px 12px",
-                          border: "none",
-                          borderRadius: "4px",
-                          cursor: "pointer",
-                        }}
+                        style={{ ...buttonstyle, backgroundColor: "#1976d2", height:"30px", display: "flex", alignItems: "center",}}
                       >
                         Salvar
                       </button>
                       <button
                         onClick={() => setIsEditingAccountName(false)}
-                        style={{
-                          backgroundColor: "#e53935",
-                          color: "white",
-                          padding: "6px 12px",
-                          border: "none",
-                          borderRadius: "4px",
-                          cursor: "pointer",
-                        }}
+                        style={{ ...buttonstyle, backgroundColor: "#e53935", height:"30px", display: "flex", alignItems: "center",}}
                       >
                         Cancelar
                       </button>
@@ -731,13 +713,11 @@ useEffect(() => {
                         setEditedAccountName(selectedAccount);
                       }}
                       style={{
+                        ...buttonstyle,
                         backgroundColor: "#f0ad4e",
-                        color: "white",
-                        padding: "6px 12px",
-                        border: "none",
-                        borderRadius: "4px",
-                        cursor: "pointer",
-                        marginRight: "auto", // para deixar à esquerda
+                        display: "flex",
+                        alignItems: "center",                        
+                        marginRight: "auto",
                       }}
                     >
                       Editar Conta
@@ -747,12 +727,11 @@ useEffect(() => {
                   <button
                     onClick={() => removeAccount(selectedAccount)}
                     style={{
+                      ...buttonstyle,
                       backgroundColor: "#e53935",
-                      color: "white",
-                      padding: "6px 12px",
-                      border: "none",
-                      borderRadius: "4px",
-                      cursor: "pointer",
+                      display: "flex",
+                      alignItems: "center",                     
+                      maxHeight: "30px"
                     }}
                   >
                     🗑️ Remover Conta
@@ -848,11 +827,12 @@ useEffect(() => {
                   <button
                     onClick={() => setShowPassword(!showPassword)}
                     style={{
-                      backgroundColor: "#ccc",
+                      backgroundColor: isDarkMode ? "#1e1e1e" : "#fff",
                       border: "none",
                       borderRadius: "5px",
                       padding: "4px 8px",
                       cursor: "pointer",
+                      fontSize: "16px",
                     }}
                     title={showPassword ? "Ocultar senha" : "Mostrar senha"}
                   >
@@ -862,23 +842,12 @@ useEffect(() => {
               </div>
             </div>
 
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "center",
-                marginTop: "30px",
-              }}
-            >
+            <div style={{ display: "flex", justifyContent: "center" }}>
               <button
                 onClick={saveLoginPassword}
                 style={{
+                  ...buttonstyle,
                   backgroundColor: "#1976d2",
-                  color: "white",
-                  padding: "6px 12px",
-                  border: "none",
-                  borderRadius: "4px",
-                  cursor: "pointer",
-                  margin: "18px",
                 }}
               >
                 Salvar
@@ -933,7 +902,8 @@ useEffect(() => {
                     />
                     <div style={{ flex: 1 }}>
                       {/* Selects de Tier + Divisão */}
-                      <div style={{ display: "flex", gap: "10px", marginBottom: "10px" }}>
+                      {/* Selects de Tier e Divisão, ou Pontos (LP) para elos altos */}
+                      <div style={{ display: "flex", gap: "10px", marginBottom: "10px", flexWrap: "wrap" }}>
                         <select
                           style={{ ...inputStyle, flex: 1.6 }}
                           value={currentData.tier || ""}
@@ -965,29 +935,55 @@ useEffect(() => {
                           <option value="challenger">Challenger</option>
                         </select>
 
-                        <select
-                          style={{ ...inputStyle, flex: 1 }}
-                          value={currentData.division || ""}
-                          onChange={(e) =>
-                            setEloDataByAccount((prev) => ({
-                              ...prev,
-                              [selectedAccount]: {
-                                ...prev[selectedAccount],
-                                [queueKey]: {
-                                  ...prev[selectedAccount]?.[queueKey],
-                                  division: e.target.value,
+                        {/* Mostrar divisão apenas se não for elo alto */}
+                        {["master", "grandmaster", "challenger"].includes(currentData.tier) ? (
+                          // Se for elo alto, mostra campo de pontos
+                          <input
+                            type="number"
+                            min="0"
+                            placeholder="Pontos (LP)"
+                            style={{ ...inputStyle, flex: 1 }}
+                            value={currentData.lp || 0}
+                            onChange={(e) =>
+                              setEloDataByAccount((prev) => ({
+                                ...prev,
+                                [selectedAccount]: {
+                                  ...prev[selectedAccount],
+                                  [queueKey]: {
+                                    ...prev[selectedAccount]?.[queueKey],
+                                    lp: parseInt(e.target.value) || 0,
+                                  },
                                 },
-                              },
-                            }))
-                          }
-                        >
-                          <option value="">Divisão</option>
-                          <option value="IV">IV</option>
-                          <option value="III">III</option>
-                          <option value="II">II</option>
-                          <option value="I">I</option>
-                        </select>
+                              }))
+                            }
+                          />
+                        ) : (
+                          // Se não for elo alto, mostra divisão
+                          <select
+                            style={{ ...inputStyle, flex: 1 }}
+                            value={currentData.division || ""}
+                            onChange={(e) =>
+                              setEloDataByAccount((prev) => ({
+                                ...prev,
+                                [selectedAccount]: {
+                                  ...prev[selectedAccount],
+                                  [queueKey]: {
+                                    ...prev[selectedAccount]?.[queueKey],
+                                    division: e.target.value,
+                                  },
+                                },
+                              }))
+                            }
+                          >
+                            <option value="">Divisão</option>
+                            <option value="IV">IV</option>
+                            <option value="III">III</option>
+                            <option value="II">II</option>
+                            <option value="I">I</option>
+                          </select>
+                        )}
                       </div>
+
 
                       {/* Inputs de Wins (W) e Losses (L) */}
                       <div style={{ marginBottom: "10px", width: "100%" }}>
