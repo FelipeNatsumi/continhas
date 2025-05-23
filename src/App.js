@@ -384,58 +384,58 @@ function App() {
     });
   }
 
-async function atualizarEloAutomaticamente() {
-  try {
-    if (!selectedAccount.includes("#")) {
-      return alert("Conta selecionada deve estar no formato nome#tag.");
-    }
-
-    const [gameName, tagLine] = selectedAccount.split("#");
-    if (!gameName || !tagLine) {
-      return alert("Formato inválido. Use nome#tag.");
-    }
-
-    const response = await fetch(`/api/getRankedData?gameName=${encodeURIComponent(gameName)}&tagLine=${encodeURIComponent(tagLine)}`);
-
-    const text = await response.text(); // Lê a resposta como texto bruto (JSON ou erro HTML)
-    
+  async function atualizarEloAutomaticamente() {
     try {
-      const { rankedData } = JSON.parse(text); // Agora tenta converter em JSON
-      const soloDuo = rankedData.find(entry => entry.queueType === "RANKED_SOLO_5x5");
-      const flex = rankedData.find(entry => entry.queueType === "RANKED_FLEX_SR");
+      if (!selectedAccount.includes("#")) {
+        return alert("Conta selecionada deve estar no formato nome#tag.");
+      }
 
-      setEloDataByAccount(prev => ({
-        ...prev,
-        [selectedAccount]: {
-          soloDuo: soloDuo ? {
-            tier: soloDuo.tier.toLowerCase(),
-            division: soloDuo.rank,
-            wins: soloDuo.wins,
-            losses: soloDuo.losses,
-            lp: soloDuo.leaguePoints,
-            queue: "soloDuo",
-          } : {},
-          flex: flex ? {
-            tier: flex.tier.toLowerCase(),
-            division: flex.rank,
-            wins: flex.wins,
-            losses: flex.losses,
-            lp: flex.leaguePoints,
-            queue: "flex",
-          } : {},
-        }
-      }));
+      const [gameName, tagLine] = selectedAccount.split("#");
+      if (!gameName || !tagLine) {
+        return alert("Formato inválido. Use nome#tag.");
+      }
 
-      alert("Elo atualizado com sucesso!");
-    } catch (jsonErr) {
-      console.error("Erro ao converter resposta em JSON:", text);
-      alert("Erro inesperado da API. Veja o console.");
+      const response = await fetch(`/api/getRankedData?gameName=${encodeURIComponent(gameName)}&tagLine=${encodeURIComponent(tagLine)}`);
+
+      const text = await response.text(); // Lê a resposta como texto bruto (JSON ou erro HTML)
+
+      try {
+        const { rankedData } = JSON.parse(text); // Agora tenta converter em JSON
+        const soloDuo = rankedData.find(entry => entry.queueType === "RANKED_SOLO_5x5");
+        const flex = rankedData.find(entry => entry.queueType === "RANKED_FLEX_SR");
+
+        setEloDataByAccount(prev => ({
+          ...prev,
+          [selectedAccount]: {
+            soloDuo: soloDuo ? {
+              tier: soloDuo.tier.toLowerCase(),
+              division: soloDuo.rank,
+              wins: soloDuo.wins,
+              losses: soloDuo.losses,
+              lp: soloDuo.leaguePoints,
+              queue: "soloDuo",
+            } : {},
+            flex: flex ? {
+              tier: flex.tier.toLowerCase(),
+              division: flex.rank,
+              wins: flex.wins,
+              losses: flex.losses,
+              lp: flex.leaguePoints,
+              queue: "flex",
+            } : {},
+          }
+        }));
+
+        alert("Elo atualizado com sucesso!");
+      } catch (jsonErr) {
+        console.error("Erro ao converter resposta em JSON:", text);
+        alert("Erro inesperado da API. Veja o console.");
+      }
+    } catch (err) {
+      console.error("Erro na requisição:", err);
+      alert("Erro ao atualizar elo automaticamente.");
     }
-  } catch (err) {
-    console.error("Erro na requisição:", err);
-    alert("Erro ao atualizar elo automaticamente.");
   }
-}
 
 
 
@@ -667,7 +667,7 @@ async function atualizarEloAutomaticamente() {
                   }
                 }}
                 title="Copy"
-                style={{ ...buttonstyle, backgroundColor: isDarkMode ? "#1e1e1e" : "#fff", fontSize: "16px"}}
+                style={{ ...buttonstyle, backgroundColor: isDarkMode ? "#1e1e1e" : "#fff", fontSize: "16px" }}
               >
                 ✏️
               </button>
@@ -911,14 +911,30 @@ async function atualizarEloAutomaticamente() {
               minWidth: "400px",
             }}
           >
-            <h2 style={{ marginTop: 0 }}>Elo</h2>
 
-            <button
-              onClick={atualizarEloAutomaticamente}
-              style={{ ...buttonstyle, backgroundColor: "#2196f3", marginBottom: "15px" }}
-            >
-              🔄 Atualizar Elo com API da Riot
-            </button>
+<div style={{
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "space-between",
+  marginBottom: "10px"
+}}>
+  <h2 style={{ margin: 0 }}>Elo</h2>
+
+  <img
+    src="/gatinho.png"
+    alt="Atualizar elo"
+    onClick={atualizarEloAutomaticamente}
+    style={{
+      width: "40px",
+      height: "40px",
+      cursor: "pointer",
+      transition: "transform 0.2s ease-in-out",
+    }}
+    onMouseOver={(e) => (e.currentTarget.style.transform = "scale(1.5)")}
+    onMouseOut={(e) => (e.currentTarget.style.transform = "scale(1)")}
+    title="Clique para atualizar o elo"
+  />
+</div>
 
             {/* Seletor de fila */}
             <div style={{ marginBottom: "15px" }}>
@@ -952,7 +968,7 @@ async function atualizarEloAutomaticamente() {
                       {/* Selects de Tier e Divisão, ou Pontos (LP) para elos altos */}
                       <div style={{ display: "flex", gap: "10px", marginBottom: "10px", flexWrap: "wrap" }}>
                         <select
-                          style={{ ...inputStyle, flex: 1.6 }}
+                          style={{ ...inputStyle, flex: 1.5 }}
                           value={currentData.tier || ""}
                           onChange={(e) =>
                             setEloDataByAccount((prev) => ({
@@ -982,30 +998,8 @@ async function atualizarEloAutomaticamente() {
                           <option value="challenger">Challenger</option>
                         </select>
 
-                        {/* Mostrar divisão apenas se não for elo alto */}
-                        {["master", "grandmaster", "challenger"].includes(currentData.tier) ? (
-                          // Se for elo alto, mostra campo de pontos
-                          <input
-                            type="number"
-                            min="0"
-                            placeholder="Pontos (LP)"
-                            style={{ ...inputStyle, flex: 1 }}
-                            value={currentData.lp || 0}
-                            onChange={(e) =>
-                              setEloDataByAccount((prev) => ({
-                                ...prev,
-                                [selectedAccount]: {
-                                  ...prev[selectedAccount],
-                                  [queueKey]: {
-                                    ...prev[selectedAccount]?.[queueKey],
-                                    lp: parseInt(e.target.value) || 0,
-                                  },
-                                },
-                              }))
-                            }
-                          />
-                        ) : (
-                          // Se não for elo alto, mostra divisão
+                        {/* Tier alto: Master+ não tem divisão */}
+                        {["master", "grandmaster", "challenger"].includes(currentData.tier) ? null : (
                           <select
                             style={{ ...inputStyle, flex: 1 }}
                             value={currentData.division || ""}
@@ -1029,8 +1023,28 @@ async function atualizarEloAutomaticamente() {
                             <option value="I">I</option>
                           </select>
                         )}
-                      </div>
 
+                        {/* Campo de LP para todos os tiers */}
+                        <input
+                          type="number"
+                          min="0"
+                          placeholder="Pontos (LP)"
+                          style={{ ...inputStyle, flex: 0.5, textAlign: "center"}}
+                          value={currentData.lp || 0}
+                          onChange={(e) =>
+                            setEloDataByAccount((prev) => ({
+                              ...prev,
+                              [selectedAccount]: {
+                                ...prev[selectedAccount],
+                                [queueKey]: {
+                                  ...prev[selectedAccount]?.[queueKey],
+                                  lp: parseInt(e.target.value) || 0,
+                                },
+                              },
+                            }))
+                          }
+                        />
+                      </div>
 
                       {/* Inputs de Wins (W) e Losses (L) */}
                       <div style={{ marginBottom: "10px", width: "100%" }}>
