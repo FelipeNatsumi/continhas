@@ -325,7 +325,7 @@ function App() {
         setOwnedChampsByAccount(champsData);
         setAccountDetails(details);
         setEloDataByAccount(eloData);
-        if (accountsList.length > 0) setSelectedAccount(accountsList[0]);
+        setSelectedAccount("");
       } catch (error) {
         console.error("Erro ao buscar contas do Firestore:", error);
       }
@@ -596,7 +596,7 @@ function App() {
           </button>
           */}
         </div>
-      </header>
+      </header>    
 
       <div
         style={{
@@ -781,7 +781,25 @@ function App() {
 
         </div>
 
-        {/* Box 2 - Detalhes da conta */}
+        {/* Box 2- Filtro */}
+        <div
+          style={{
+            backgroundColor: isDarkMode ? "#1f1f1f" : "#f9f9f9",
+            padding: "20px",
+            borderRadius: "10px",
+            boxShadow: isDarkMode
+              ? "0 2px 8px rgba(255,255,255,0.05)"
+              : "0 2px 8px rgba(0,0,0,0.1)",
+            maxWidth: "250px",
+            flex: 1,
+            minWidth: "200px",
+          }}
+        >
+          <h2 style={{ marginTop: 0 }}>Filtro</h2>
+        </div>
+
+
+        {/* Box 3 - Detalhes da conta */}
         {selectedAccount && (
           <div
             style={{
@@ -896,7 +914,7 @@ function App() {
           </div>
         )}
 
-        {/* Box 3 - Elo */}
+        {/* Box 4 - Elo */}
         {selectedAccount && (
           <div
             style={{
@@ -912,33 +930,33 @@ function App() {
             }}
           >
 
-<div style={{
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "space-between",
-  marginBottom: "10px"
-}}>
-  <h2 style={{ margin: 0 }}>Elo</h2>
+            <div style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              marginBottom: "10px"
+            }}>
+              <h2 style={{ margin: 0 }}>Elo</h2>
 
-  <img
-    src="/gatinho.png"
-    alt="Atualizar elo"
-    onClick={atualizarEloAutomaticamente}
-    style={{
-      width: "40px",
-      height: "40px",
-      cursor: "pointer",
-      transition: "transform 0.2s ease-in-out",
-    }}
-    onMouseOver={(e) => (e.currentTarget.style.transform = "scale(1.5)")}
-    onMouseOut={(e) => (e.currentTarget.style.transform = "scale(1)")}
-    title="Clique para atualizar o elo"
-  />
-</div>
+              <img
+                src="/gatinho.png"
+                alt="Atualizar elo"
+                onClick={atualizarEloAutomaticamente}
+                style={{
+                  width: "40px",
+                  height: "40px",
+                  cursor: "pointer",
+                  transition: "transform 0.2s ease-in-out",
+                }}
+                onMouseOver={(e) => (e.currentTarget.style.transform = "scale(1.5)")}
+                onMouseOut={(e) => (e.currentTarget.style.transform = "scale(1)")}
+                title="Clique para atualizar o elo"
+              />
+            </div>
 
             {/* Seletor de fila */}
             <div style={{ marginBottom: "15px" }}>
-              <label style={{ fontWeight: "bold" }}>Fila:</label>
+              <label style={{ fontWeight: "bold" }}>Queue:</label>
               <select
                 style={{ ...inputStyle, width: "100%", marginTop: "5px" }}
                 value={selectedQueue}
@@ -1029,7 +1047,7 @@ function App() {
                           type="number"
                           min="0"
                           placeholder="Pontos (LP)"
-                          style={{ ...inputStyle, flex: 0.5, textAlign: "center"}}
+                          style={{ ...inputStyle, flex: 0.5, textAlign: "center" }}
                           value={currentData.lp || 0}
                           onChange={(e) =>
                             setEloDataByAccount((prev) => ({
@@ -1154,7 +1172,7 @@ function App() {
           </div>
         )}
 
-        {/* Box 4 - Filtros */}
+        {/* Box 5 - Filtros */}
         {selectedAccount && (
           <div
             style={{
@@ -1169,7 +1187,7 @@ function App() {
               minWidth: "300px",
             }}
           >
-            <h2 style={{ marginTop: 0 }}>Filtros</h2>
+            <h2 style={{ marginTop: 0 }}>Campeones</h2>
 
             {/* Filtro por possuidos */}
             <div style={{ display: "flex", alignItems: "center", gap: "10px", marginTop: "40px" }}>
@@ -1201,6 +1219,33 @@ function App() {
               </div>
               <span>Mostrar apenas possuídos</span>
             </div>
+
+            {/* Botão temporário para selecionar todos */}
+            <button
+              onClick={() => {
+                if (!selectedAccount) return alert("Selecione uma conta primeiro.");
+                const todosIds = champions.map(champ => champ.id);
+                setOwnedChampsByAccount(prev => ({
+                  ...prev,
+                  [selectedAccount]: todosIds,
+                }));
+              }}
+              style={{
+                marginTop: "20px",
+                padding: "8px 12px",
+                backgroundColor: "#1976d2",
+                color: "#fff",
+                border: "none",
+                borderRadius: "6px",
+                cursor: "pointer",
+                fontSize: "14px",
+                fontWeight: "bold",
+                width: "100%",
+              }}
+            >
+              Selecionar Todos os Campeões
+            </button>
+
 
             {/* Filtro por rota */}
             <div
@@ -1245,7 +1290,6 @@ function App() {
                 />
               ))}
             </div>
-
           </div>
         )}
       </div>
