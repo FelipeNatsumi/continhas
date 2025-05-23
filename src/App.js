@@ -1246,6 +1246,30 @@ function App() {
               Selecionar Todos os Campeões
             </button>
 
+            {/* Botão para remover todos os campeões */}
+            <button
+              onClick={() => {
+                if (!selectedAccount) return alert("Selecione uma conta primeiro.");
+                setOwnedChampsByAccount(prev => ({
+                  ...prev,
+                  [selectedAccount]: [],
+                }));
+              }}
+              style={{
+                marginTop: "10px",
+                padding: "8px 12px",
+                backgroundColor: "#e53935",
+                color: "#fff",
+                border: "none",
+                borderRadius: "6px",
+                cursor: "pointer",
+                fontSize: "14px",
+                fontWeight: "bold",
+                width: "100%",
+              }}
+            >
+              Remover Todos os Campeões
+            </button>
 
             {/* Filtro por rota */}
             <div
