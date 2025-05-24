@@ -232,6 +232,9 @@ function App() {
   };
   const [selectedQueue, setSelectedQueue] = useState("Solo/Duo");
   const [eloDataByAccount, setEloDataByAccount] = useState({});
+  const [selectedTierFilter, setSelectedTierFilter] = useState("");
+  const [filteredAccounts, setFilteredAccounts] = useState([]);
+  const [showFilteredAccounts, setShowFilteredAccounts] = useState(false);
 
   function getQueueKey(queueLabel) {
     return queueLabel === "Flex" ? "flex" : "soloDuo";
@@ -437,8 +440,6 @@ function App() {
     }
   }
 
-
-
   async function toggleChampion(champId) {
     if (!selectedAccount) {
       alert("Selecione uma conta primeiro");
@@ -598,7 +599,8 @@ function App() {
         </div>
       </header>    
 
-      <div
+      {/* Box*/}
+      <div 
         style={{
           display: "flex",
           gap: "20px",
@@ -646,32 +648,33 @@ function App() {
             <label style={{ fontWeight: "bold", display: "block", marginBottom: "6px" }}>
               Conta selecionada:
             </label>
-            <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
-              <select
-                style={{ ...inputStyle, flex: 1 }}
-                value={selectedAccount}
-                onChange={(e) => setSelectedAccount(e.target.value)}
-              >
-                <option value="">-- Selecione uma conta --</option>
-                {accounts.map((acc) => (
-                  <option key={acc} value={acc}>
-                    {acc}
-                  </option>
-                ))}
-              </select>
+              <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+                <select
+                  style={{ ...inputStyle, flex: 1 }}
+                  value={selectedAccount}
+                  onChange={(e) => setSelectedAccount(e.target.value)}
+                >
+                  <option value="">-- Selecione uma conta --</option>
+                  {accounts.map((acc) => (
+                    <option key={acc} value={acc}>
+                      {acc}
+                    </option>
+                  ))}
+                </select>
 
-              <button
-                onClick={() => {
-                  if (selectedAccount) {
-                    navigator.clipboard.writeText(selectedAccount);
-                  }
-                }}
-                title="Copy"
-                style={{ ...buttonstyle, backgroundColor: isDarkMode ? "#1e1e1e" : "#fff", fontSize: "16px" }}
-              >
-                ✏️
-              </button>
-            </div>
+                <button
+                  onClick={() => {
+                    if (selectedAccount) {
+                      navigator.clipboard.writeText(selectedAccount);
+                    }
+                  }}
+                  title="Copy"
+                  style={{ ...buttonstyle, backgroundColor: isDarkMode ? "#1e1e1e" : "#fff", fontSize: "16px" }}
+                >
+                  ✏️
+                </button>
+              </div>
+
           </div>
 
           {selectedAccount && (
@@ -796,8 +799,69 @@ function App() {
           }}
         >
           <h2 style={{ marginTop: 0 }}>Filtro</h2>
-        </div>
 
+          <div style={{ marginTop: "20px" }}>
+            <label style={{ fontWeight: "bold", display: "block", marginBottom: "6px" }}>
+              By Rank
+            </label>
+            <select
+              style={{ ...inputStyle, width: "100%" }}
+              value={selectedTierFilter}
+              onChange={(e) => setSelectedTierFilter(e.target.value.toLowerCase())}
+            >
+              <option value="">Unranked</option>
+              <option value="iron">Iron</option>
+              <option value="bronze">Bronze</option>
+              <option value="silver">Silver</option>
+              <option value="gold">Gold</option>
+              <option value="platinum">Platinum</option>
+              <option value="emerald">Emerald</option>
+              <option value="diamond">Diamond</option>
+              <option value="master">Master</option>
+              <option value="grandmaster">Grandmaster</option>
+              <option value="challenger">Challenger</option>
+            </select>
+          </div>
+
+          <div style={{ marginTop: "14px" }}>
+            <label style={{ fontWeight: "bold", display: "block", marginBottom: "6px" }}>
+              By Champion
+            </label>
+            <input
+              type="text"
+              placeholder="Escolhe o campeão"
+              style={{ ...inputStyle, width: "100%", margin: 0 }}
+            />
+          </div>
+ 
+          <div style={{ textAlign: "center", marginTop: "20px" }}>
+            <button
+              style={{
+                ...buttonstyle,
+                backgroundColor: "#1976d2",
+                height: "32px",
+                justifyContent: "center", // horizontal
+                alignItems: "center",     // vertical
+              }}
+              onClick={() => {
+                if (!selectedTierFilter) {
+                  alert("Selecione um elo para filtrar");
+                  return;
+                }
+
+                const matchingAccounts = accounts.filter((acc) => {
+                  const tier = eloDataByAccount[acc]?.soloDuo?.tier;
+                  return tier === selectedTierFilter;
+                });
+
+                setFilteredAccounts(matchingAccounts);
+                setShowFilteredAccounts(true);
+              }}
+            >
+              Search
+            </button>
+          </div>
+        </div>
 
         {/* Box 3 - Detalhes da conta */}
         {selectedAccount && (
@@ -829,7 +893,7 @@ function App() {
                   style={{
                     fontWeight: "bold",
                     display: "block",
-                    marginBottom: "5px",
+                    marginBottom: "6px",
                   }}
                 >
                   Login:
@@ -858,7 +922,7 @@ function App() {
                   style={{
                     fontWeight: "bold",
                     display: "block",
-                    marginBottom: "5px",
+                    marginBottom: "6px",
                   }}
                 >
                   Senha:
@@ -1318,68 +1382,104 @@ function App() {
         )}
       </div>
 
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))",
-          gap: "15px",
-        }}
-      >
-        {champions
-          .filter((champ) => {
-            if (showOnlyOwned && !isOwned(champ.id)) return false;
-            if (
-              selectedRole &&
-              !championsByRole[selectedRole]?.includes(champ.id)
-            )
-              return false;
-            return true;
-          })
-          .map((champ) => {
-            const owned = isOwned(champ.id);
-            return (
-              <div
-                key={champ.id}
-                onClick={() => toggleChampion(champ.id)}
+  {/* Mostrar campeões apenas se não estiver filtrando por elo */}
+  {!showFilteredAccounts && (
+    <div
+      style={{
+        display: "grid",
+        gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))",
+        gap: "15px",
+      }}
+    >
+      {champions
+        .filter((champ) => {
+          if (showOnlyOwned && !isOwned(champ.id)) return false;
+          if (
+            selectedRole &&
+            !championsByRole[selectedRole]?.includes(champ.id)
+          )
+            return false;
+          return true;
+        })
+        .map((champ) => {
+          const owned = isOwned(champ.id);
+          return (
+            <div
+              key={champ.id}
+              onClick={() => toggleChampion(champ.id)}
+              style={{
+                cursor: "pointer",
+                textAlign: "center",
+                borderRadius: "10px",
+                border: "none",
+                boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
+                filter: owned ? "none" : "grayscale(100%) brightness(60%)",
+                overflow: "hidden",
+                transition: "all 0.3s ease-in-out",
+                backgroundColor: isDarkMode ? "#1a1a1a" : "#fff",
+              }}
+              title={
+                owned
+                  ? "Você possui este campeão nesta conta"
+                  : "Clique para marcar como possuído"
+              }
+            >
+              <img
+                src={`https://ddragon.leagueoflegends.com/cdn/img/champion/splash/${champ.id}_0.jpg`}
+                alt={champ.name}
                 style={{
-                  cursor: "pointer",
-                  textAlign: "center",
-                  borderRadius: "10px",
-                  border: "none",
-                  boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
-                  filter: owned ? "none" : "grayscale(100%) brightness(60%)",
-                  overflow: "hidden",
-                  transition: "all 0.3s ease-in-out",
-                  backgroundColor: isDarkMode ? "#1a1a1a" : "#fff",
+                  width: "100%",
+                  borderRadius: "8px",
+                  transition: "transform 0.3s ease",
                 }}
-                title={
-                  owned
-                    ? "Você possui este campeão nesta conta"
-                    : "Clique para marcar como possuído"
+                onMouseOver={(e) =>
+                  (e.currentTarget.style.transform = "scale(1.10)")
                 }
-              >
-                <img
-                  src={`https://ddragon.leagueoflegends.com/cdn/img/champion/splash/${champ.id}_0.jpg`}
-                  alt={champ.name}
-                  style={{
-                    width: "100%",
-                    borderRadius: "8px",
-                    transition: "transform 0.3s ease",
-                  }}
-                  onMouseOver={(e) =>
-                    (e.currentTarget.style.transform = "scale(1.10)")
-                  }
-                  onMouseOut={(e) =>
-                    (e.currentTarget.style.transform = "scale(1)")
-                  }
-                />
-                <p style={{ fontSize: "0.85rem", margin: "6px 0" }}>
-                  {champ.name}
-                </p>
-              </div>
-            );
-          })}
-      </div>
+                onMouseOut={(e) =>
+                  (e.currentTarget.style.transform = "scale(1)")
+                }
+              />
+              <p style={{ fontSize: "0.85rem", margin: "6px 0" }}>
+                {champ.name}
+              </p>
+            </div>
+          );
+        })}
+    </div>
+  )}
+
+  {/* Mostrar lista de contas filtradas se showFilteredAccounts for true */}
+  {showFilteredAccounts && (
+    <div style={{ marginTop: "20px" }}>
+      <h3>Contas com elo {selectedTierFilter.toUpperCase()}:</h3>
+      {filteredAccounts.length === 0 ? (
+        <p>Nenhuma conta encontrada com esse elo.</p>
+      ) : (
+        <ul>
+          {filteredAccounts.map((acc) => (
+            <li key={acc} style={{ marginBottom: "8px" }}>
+              {acc}
+            </li>
+          ))}
+        </ul>
+      )}
+      <button
+        style={{
+          marginTop: "10px",
+          padding: "6px 12px",
+          backgroundColor: "#e53935",
+          color: "white",
+          border: "none",
+          borderRadius: "4px",
+          cursor: "pointer",
+        }}
+        onClick={() => setShowFilteredAccounts(false)}
+      >
+        Voltar
+      </button>
+    </div>
+  )}
+
     </div>
   );
 }
