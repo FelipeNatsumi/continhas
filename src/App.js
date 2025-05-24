@@ -1284,6 +1284,10 @@ function App() {
               <span>Mostrar apenas possuídos</span>
             </div>
 
+              <p style={{ fontWeight: "bold", margin: "10px 0 5px" }}>
+                Campeões possuídos: {getOwnedCount()} / {champions.length}
+              </p>
+
             {/* Botão temporário para selecionar todos */}
             <button
               onClick={() => {
