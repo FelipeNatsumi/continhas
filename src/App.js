@@ -252,6 +252,11 @@ function App() {
       ),
     })),
   ];
+  const [selectedChampionsFilter, setSelectedChampionsFilter] = useState([]);
+  const [ddragonVersion, setDdragonVersion] = useState("");
+  const [saveSuccess, setSaveSuccess] = useState(false);
+  const [removeSuccess, setRemoveSuccess] = useState(false);
+  const [showConfirmRemove, setShowConfirmRemove] = useState(false);
 
   function getQueueKey(queueLabel) {
     return queueLabel === "Flex" ? "flex" : "soloDuo";
@@ -288,6 +293,7 @@ function App() {
         const versionRes = await fetch("https://ddragon.leagueoflegends.com/api/versions.json");
         const versions = await versionRes.json();
         const latestVersion = versions[0];
+        setDdragonVersion(latestVersion);
 
         // Passo 2: buscar os campeões usando a versão correta
         const champsRes = await fetch(
@@ -303,7 +309,6 @@ function App() {
 
     fetchChampions();
   }, []);
-
 
   // Carregar contas e dados do Firestore
   useEffect(() => {
@@ -498,13 +503,6 @@ function App() {
   }
 
   async function removeAccount(accountToRemove) {
-    if (
-      !window.confirm(
-        `Tem certeza que deseja remover a conta "${accountToRemove}"?`,
-      )
-    )
-      return;
-
     const updatedAccounts = accounts.filter((acc) => acc !== accountToRemove);
     const updatedOwnedChamps = { ...ownedChampsByAccount };
     delete updatedOwnedChamps[accountToRemove];
@@ -512,11 +510,10 @@ function App() {
     setAccounts(updatedAccounts);
     setOwnedChampsByAccount(updatedOwnedChamps);
 
-    if (selectedAccount === accountToRemove) {
-      setSelectedAccount(updatedAccounts[0] || "");
-    }
-
     await deleteDoc(doc(db, "accounts", accountToRemove));
+
+    // Limpar conta selecionada
+    setSelectedAccount("");
   }
 
   async function saveLoginPassword() {
@@ -529,7 +526,6 @@ function App() {
         login,
         password,
       });
-      alert("Login e senha salvos com sucesso!");
     } catch (err) {
       console.error("Erro ao salvar login/senha:", err);
       alert("Erro ao salvar login/senha.");
@@ -542,18 +538,20 @@ function App() {
     minHeight: "100vh",
     padding: "20px",
     transition: "all 0.3s ease",
-    fontFamily: "Segoe UI, Roboto, sans-serif",
+    fontFamily: "inherit, Segoe UI, Roboto, sans-serif",
   };
 
   const inputStyle = {
     backgroundColor: isDarkMode ? "#1e1e1e" : "#ffffff",
     color: isDarkMode ? "#ffffff" : "#000000",
     border: "1px solid #ccc",
-    padding: "6px",
+    padding: "6px 8px",
     borderRadius: "5px",
     width: "90%",
     height: "32px",
     boxSizing: "border-box",
+    fontSize: "14px",
+    fontFamily: "inherit, Segoe UI, Roboto, sans-serif",
   };
 
   const buttonstyle = {
@@ -563,7 +561,6 @@ function App() {
     borderRadius: "4px",
     cursor: "pointer",
   };
-
 
   return (
     <div style={appStyle}>
@@ -671,8 +668,9 @@ function App() {
                 value={selectedAccount}
                 onChange={(e) => {
                   setSelectedAccount(e.target.value);
-                  setSelectedTierFilter(""); // ← resetar o filtro de elo
-                  setShowFilteredAccounts(false); // ← mostrar campeões novamente
+                  setSelectedTierFilter("");
+                  setSelectedChampionsFilter([]); // ← aqui
+                  setShowFilteredAccounts(false);
                 }}
               >
                 <option value="">-- Selecione uma conta --</option>
@@ -697,7 +695,6 @@ function App() {
                 ✏️
               </button>
             </div>
-
           </div>
 
           {selectedAccount && (
@@ -721,20 +718,16 @@ function App() {
                         alert("Já existe uma conta com esse nome");
                         return;
                       }
-
                       const oldName = selectedAccount;
                       const owned = ownedChampsByAccount[oldName] || [];
                       const details = accountDetails[oldName] || { login: "", password: "" };
-
                       try {
                         await setDoc(doc(db, "accounts", newName), {
                           ownedChamps: owned,
                           login: details.login,
                           password: details.password,
                         });
-
                         await deleteDoc(doc(db, "accounts", oldName));
-
                         setAccounts((prev) =>
                           prev.map((acc) => (acc === oldName ? newName : acc))
                         );
@@ -750,7 +743,6 @@ function App() {
                           delete copy[oldName];
                           return copy;
                         });
-
                         setSelectedAccount(newName);
                         setIsEditingAccountName(false);
                         alert("Nome da conta atualizado com sucesso!");
@@ -784,27 +776,30 @@ function App() {
                       alignItems: "center",
                       marginRight: "auto",
                       height: "32px",
+                      marginTop: "10px",
                     }}
                   >
                     Editar Conta
                   </button>
                   <button
-                    onClick={() => removeAccount(selectedAccount)}
+                    onClick={() => setShowConfirmRemove(true)}
+                    disabled={!selectedAccount}
                     style={{
                       ...buttonstyle,
-                      backgroundColor: "#e53935",
-                      display: "flex",
-                      alignItems: "center",
-                      Height: "32px",
+                      backgroundColor: removeSuccess ? "#4caf50" : "#e53935",
+                      height: "32px",
+                      marginTop: "10px",
+                      transition: "all 0.3s ease",
+                      opacity: selectedAccount ? 1 : 0.5,
+                      cursor: selectedAccount ? "pointer" : "not-allowed",
                     }}
                   >
-                    🗑️ Remover Conta
+                    {removeSuccess ? "✔️ Removida!" : "🗑️ Remover Conta"}
                   </button>
                 </>
               )}
             </div>
           )}
-
         </div>
 
         {/* Box 2- Filtro */}
@@ -843,18 +838,15 @@ function App() {
                   border: "1px solid #ccc",
                   borderRadius: "5px",
                   minHeight: "30px",
-                  height: "30px",
-                  fontSize: "13px",
-                  padding: "0 4px", // pequeno padding lateral
+                  height: "32px",
+                  fontSize: "14px",
+                  padding: "0 4px",
                 }),
                 valueContainer: (base) => ({
                   ...base,
-                  paddingTop: "0px",
-                  paddingBottom: "0px",
-                  paddingLeft: "4px",
-                  paddingRight: "4px",
+                  padding: "0 4px",
                   height: "30px",
-                  fontSize: "16px",
+                  fontSize: "14px",
                 }),
                 input: (base) => ({
                   ...base,
@@ -876,7 +868,8 @@ function App() {
                   display: "flex",
                   alignItems: "center",
                   gap: "6px",
-                  color: isDarkMode ? "#fff" : "#000",
+                  color: isDarkMode ? "#aaa" : "#888",
+                  fontSize: "14px",
                 }),
                 option: (base, state) => ({
                   ...base,
@@ -907,40 +900,159 @@ function App() {
             <label style={{ fontWeight: "bold", display: "block", marginBottom: "6px" }}>
               By Champion
             </label>
-            <input
-              type="text"
-              placeholder="Escolhe o campeão"
-              style={{ ...inputStyle, width: "100%", margin: 0 }}
+            <Select
+              isMulti
+              options={champions.map(champ => ({
+                value: champ.id,
+                label: (
+                  <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                    <img
+                      src={`https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/champion/${champ.id}.png`}
+                      alt={champ.name}
+                      style={{
+                        width: "20px",
+                        height: "20px",
+                        objectFit: "cover",
+                        borderRadius: "50%",
+                      }}
+                    />
+                    <span>{champ.name}</span>
+                  </div>
+                ),
+                icon: (
+                  <img
+                    src={`https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/champion/${champ.id}.png`}
+                    alt={champ.name}
+                    style={{
+                      width: "20px",
+                      height: "20px",
+                      objectFit: "cover",
+                      borderRadius: "50%",
+                    }}
+                  />
+                )
+              }))}
+              value={champions
+                .filter(c => selectedChampionsFilter.includes(c.id))
+                .map(c => ({
+                  value: c.id,
+                  label: (
+                    <img
+                      src={`https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/champion/${c.id}.png`}
+                      alt={c.name}
+                      style={{
+                        width: "20px",
+                        height: "20px",
+                        objectFit: "cover",
+                        borderRadius: "50%",
+                      }}
+                    />
+                  )
+                }))
+              }
+              onChange={(selectedOptions) => {
+                const selected = selectedOptions || [];
+                setSelectedChampionsFilter(selected.map(opt => opt.value));
+                setSelectedAccount(""); // ← Resetar conta selecionada
+                setShowFilteredAccounts(false); // ← Oculta o resultado filtrado anterior
+              }}
+              placeholder="Champions..."
+              styles={{
+                control: (base) => ({
+                  ...base,
+                  backgroundColor: isDarkMode ? "#1e1e1e" : "#fff",
+                  color: isDarkMode ? "#fff" : "#000",
+                  border: "1px solid #ccc",
+                  borderRadius: "5px",
+                  height: "32px",
+                  minHeight: "32px",
+                  boxSizing: "border-box",
+                  padding: "0 4px",
+                  overflow: "hidden",
+                }),
+                valueContainer: (base) => ({
+                  ...base,
+                  height: "32px",
+                  padding: "0 4px",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "4px",
+                }),
+                multiValue: (base) => ({
+                  ...base,
+                  backgroundColor: "transparent",
+                  padding: "0",
+                  margin: "0",
+                }),
+                multiValueLabel: () => ({
+                  display: "flex",
+                  alignItems: "center",
+                }),
+                multiValueRemove: (base) => ({
+                  ...base,
+                  display: "none",
+                }),
+                input: (base) => ({
+                  ...base,
+                  margin: 0,
+                  padding: 0,
+                  height: "20px",
+                  color: isDarkMode ? "#fff" : "#000",
+                }),
+                placeholder: (base) => ({
+                  ...base,
+                  fontSize: "14px",
+                  color: isDarkMode ? "#aaa" : "#888",
+                }),
+                indicatorsContainer: (base) => ({
+                  ...base,
+                  height: "32px",
+                }),
+                dropdownIndicator: (base) => ({
+                  ...base,
+                  padding: "2px",
+                }),
+                menu: (base) => ({
+                  ...base,
+                  backgroundColor: isDarkMode ? "#1e1e1e" : "#fff",
+                }),
+                option: (base, state) => ({
+                  ...base,
+                  backgroundColor: state.isFocused
+                    ? isDarkMode ? "#333" : "#eee"
+                    : "transparent",
+                  color: isDarkMode ? "#fff" : "#000",
+                  padding: "6px 8px",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "8px",
+                }),
+              }}
             />
+
           </div>
-
-          <div style={{ textAlign: "center", marginTop: "20px" }}>
-            <button
-              style={{
-                ...buttonstyle,
-                backgroundColor: "#1976d2",
-                height: "32px",
-                justifyContent: "center", // horizontal
-                alignItems: "center",     // vertical
-              }}
-              onClick={() => {
-                if (!selectedTierFilter) {
-                  alert("Selecione um elo para filtrar");
-                  return;
-                }
-
-                const matchingAccounts = accounts.filter((acc) => {
-                  const tier = eloDataByAccount[acc]?.soloDuo?.tier;
-                  return tier === selectedTierFilter;
-                });
-
-                setFilteredAccounts(matchingAccounts);
-                setShowFilteredAccounts(true);
-              }}
-            >
-              Search
-            </button>
-          </div>
+          {(selectedTierFilter || selectedChampionsFilter.length > 0) && (
+            <div style={{ textAlign: "center", marginTop: "20px" }}>
+              <button
+                style={{ ...buttonstyle, backgroundColor: "#1976d2", height: "32px", marginTop: "10px" }}
+                onClick={() => {
+                  const tier = selectedTierFilter;
+                  const champs = selectedChampionsFilter;
+                  const matchingAccounts = accounts.filter((acc) => {
+                    const owned = ownedChampsByAccount[acc] || [];
+                    const ranked = eloDataByAccount[acc]?.soloDuo?.tier;
+                    const hasAllChampions = champs.every((c) => owned.includes(c));
+                    const tierMatches = !tier || ranked === tier;
+                    return hasAllChampions && tierMatches;
+                  });
+                  setFilteredAccounts(matchingAccounts);
+                  setShowFilteredAccounts(true);
+                }}
+              >
+                Search
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Box 3 - Detalhes da conta */}
@@ -1045,14 +1157,20 @@ function App() {
 
             <div style={{ display: "flex", justifyContent: "center" }}>
               <button
-                onClick={saveLoginPassword}
+                onClick={async () => {
+                  await saveLoginPassword();
+                  setSaveSuccess(true);
+                  setTimeout(() => setSaveSuccess(false), 2000); // reseta após 2 segundos
+                }}
                 style={{
                   ...buttonstyle,
-                  backgroundColor: "#1976d2",
+                  backgroundColor: saveSuccess ? "#4caf50" : "#1976d2",
                   height: "32px",
+                  marginTop: "10px",
+                  transition: "all 0.3s ease",
                 }}
               >
-                Salvar
+                {saveSuccess ? "✔️ Salvo!" : "Salvar"}
               </button>
             </div>
           </div>
@@ -1333,8 +1451,19 @@ function App() {
           >
             <h2 style={{ marginTop: 0 }}>Campeones</h2>
 
-            {/* Filtro por possuidos */}
-            <div style={{ display: "flex", alignItems: "center", gap: "10px", marginTop: "40px" }}>
+            <p style={{ fontWeight: "bold", margin: "10px 0 8px" }}>
+              Campeões possuídos: {getOwnedCount()} / {champions.length}
+            </p>
+
+            {/* Filtro por possuídos */}
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "10px",
+                marginBottom: "20px",
+              }}
+            >
               <div
                 onClick={() => setShowOnlyOwned(!showOnlyOwned)}
                 style={{
@@ -1344,7 +1473,7 @@ function App() {
                   backgroundColor: showOnlyOwned ? "#4caf50" : "#666",
                   position: "relative",
                   cursor: "pointer",
-                  transition: "background-color 0.3s ease"
+                  transition: "background-color 0.3s ease",
                 }}
                 title="Alternar filtro de possuídos"
               >
@@ -1357,89 +1486,31 @@ function App() {
                     height: "16px",
                     borderRadius: "50%",
                     backgroundColor: "#fff",
-                    transition: "left 0.3s ease"
+                    transition: "left 0.3s ease",
                   }}
                 />
               </div>
               <span>Mostrar apenas possuídos</span>
             </div>
 
-            <p style={{ fontWeight: "bold", margin: "10px 0 5px" }}>
-              Campeões possuídos: {getOwnedCount()} / {champions.length}
-            </p>
-
-            {/* Botão temporário para selecionar todos */}
-            <button
-              onClick={() => {
-                if (!selectedAccount) return alert("Selecione uma conta primeiro.");
-                const todosIds = champions.map(champ => champ.id);
-                setOwnedChampsByAccount(prev => ({
-                  ...prev,
-                  [selectedAccount]: todosIds,
-                }));
-              }}
-              style={{
-                marginTop: "20px",
-                padding: "8px 12px",
-                backgroundColor: "#1976d2",
-                color: "#fff",
-                border: "none",
-                borderRadius: "6px",
-                cursor: "pointer",
-                fontSize: "14px",
-                fontWeight: "bold",
-                width: "100%",
-              }}
-            >
-              Selecionar Todos os Campeões
-            </button>
-
-            {/* Botão para remover todos os campeões */}
-            <button
-              onClick={() => {
-                if (!selectedAccount) return alert("Selecione uma conta primeiro.");
-                setOwnedChampsByAccount(prev => ({
-                  ...prev,
-                  [selectedAccount]: [],
-                }));
-              }}
-              style={{
-                marginTop: "10px",
-                padding: "8px 12px",
-                backgroundColor: "#e53935",
-                color: "#fff",
-                border: "none",
-                borderRadius: "6px",
-                cursor: "pointer",
-                fontSize: "14px",
-                fontWeight: "bold",
-                width: "100%",
-              }}
-            >
-              Remover Todos os Campeões
-            </button>
-
             {/* Filtro por rota */}
             <div
               style={{
-                marginTop: "50px",
+                marginTop: "30px",
                 display: "flex",
-                gap: "10px",
+                gap: "15px",
                 alignItems: "center",
                 justifyContent: "center",
                 flexWrap: "wrap",
               }}
             >
-              <span style={{ fontWeight: "bold" }}></span>
               {["top", "jungle", "mid", "marksman", "support"].map((role) => (
                 <img
                   key={role}
                   src={`/lanes/${role.toLowerCase()}.webp`} // caminho das imagens
                   alt={role}
                   title={role}
-                  onClick={() =>
-                    setSelectedRole(selectedRole === role ? "" : role)
-                  }
+                  onClick={() => setSelectedRole(selectedRole === role ? "" : role)}
                   style={{
                     width: "40px",
                     height: "40px",
@@ -1461,6 +1532,46 @@ function App() {
                   }}
                 />
               ))}
+            </div>
+
+            {/* Botões: Selecionar Todos / Remover Todos */}
+            <div style={{ display: "flex", justifyContent: "space-between", gap: "20px", marginTop: "20px" }}>
+              <button
+                onClick={() => {
+                  if (!selectedAccount) return alert("Selecione uma conta primeiro.");
+                  const todosIds = champions.map(champ => champ.id);
+                  setOwnedChampsByAccount(prev => ({
+                    ...prev,
+                    [selectedAccount]: todosIds,
+                  }));
+                }}
+                style={{
+                  ...buttonstyle,
+                  backgroundColor: "#1976d2",
+                  height: "32px",
+                  marginTop: "20px",
+                }}
+              >
+                Selecionar Todos
+              </button>
+
+              <button
+                onClick={() => {
+                  if (!selectedAccount) return alert("Selecione uma conta primeiro.");
+                  setOwnedChampsByAccount(prev => ({
+                    ...prev,
+                    [selectedAccount]: [],
+                  }));
+                }}
+                style={{
+                  ...buttonstyle,
+                  backgroundColor: "#e53935",
+                  height: "32px",
+                  marginTop: "20px",
+                }}
+              >
+                Remover Todos
+              </button>
             </div>
           </div>
         )}
@@ -1536,7 +1647,12 @@ function App() {
       {/* Mostrar lista de contas filtradas se showFilteredAccounts for true */}
       {showFilteredAccounts && (
         <div style={{ marginTop: "20px" }}>
-          <h3>Contas com elo {selectedTierFilter.toUpperCase()}:</h3>
+          <h3>
+            Contas encontradas
+            {selectedTierFilter && ` com elo ${selectedTierFilter.toUpperCase()}`}
+            {selectedChampionsFilter.length > 0 && ` com campeões: ${selectedChampionsFilter.join(", ")}`}
+            :
+          </h3>
           {filteredAccounts.length === 0 ? (
             <p>Nenhuma conta encontrada com esse elo.</p>
           ) : (
@@ -1547,6 +1663,7 @@ function App() {
                   onClick={() => {
                     setSelectedAccount(acc); // seleciona a conta
                     setSelectedTierFilter(""); // reseta o filtro de elo
+                    setSelectedChampionsFilter([]); // ← limpa campeões
                     setShowFilteredAccounts(false); // mostra campeões e dados da conta
                   }}
                   style={{
@@ -1577,6 +1694,79 @@ function App() {
           >
             Voltar
           </button>
+        </div>
+      )}
+
+      {showConfirmRemove && (
+        <div style={{
+          position: "fixed",
+          top: 0, left: 0, right: 0, bottom: 0,
+          backgroundColor: "rgba(0,0,0,0.5)",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          zIndex: 1000,
+          backdropFilter: "blur(2px)",
+        }}>
+          <div style={{
+            backgroundColor: isDarkMode ? "#1f1f1f" : "#fff",
+            color: isDarkMode ? "#fff" : "#000",
+            padding: "24px",
+            borderRadius: "12px",
+            width: "100%",
+            maxWidth: "360px",
+            boxShadow: "0 8px 24px rgba(0,0,0,0.4)",
+            textAlign: "center",
+            position: "relative",
+          }}>
+            <h3 style={{ marginTop: 0, marginBottom: "16px", fontSize: "18px" }}>
+              Remover conta
+            </h3>
+
+            <p style={{ fontSize: "15px", marginBottom: "24px" }}>
+              Tem certeza que deseja remover <br />
+              <strong style={{ color: "#e53935" }}>{selectedAccount}</strong>?
+            </p>
+
+            <div style={{ display: "flex", justifyContent: "space-between", gap: "12px" }}>
+              <button
+                onClick={async () => {
+                  await removeAccount(selectedAccount);
+                  setShowConfirmRemove(false);
+                  setRemoveSuccess(true);
+                  setTimeout(() => setRemoveSuccess(false), 2000);
+                }}
+                style={{
+                  flex: 1,
+                  padding: "8px 12px",
+                  backgroundColor: "#e53935",
+                  color: "#fff",
+                  border: "none",
+                  borderRadius: "6px",
+                  cursor: "pointer",
+                  fontWeight: "bold",
+                }}
+              >
+                Remover
+              </button>
+
+              <button
+                onClick={() => setShowConfirmRemove(false)}
+                style={{
+                  flex: 1,
+                  padding: "8px 12px",
+                  backgroundColor: isDarkMode ? "#555" : "#ccc",
+                  color: isDarkMode ? "#fff" : "#000",
+                  border: "none",
+                  borderRadius: "6px",
+                  cursor: "pointer",
+                  fontWeight: "bold",
+                }}
+              >
+                Cancelar
+              </button>
+            </div>
+          </div>
         </div>
       )}
 

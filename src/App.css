@@ -43,8 +43,20 @@
   left: 47px;
 }
 
+input::placeholder,
+textarea::placeholder {
+  color: #aaa;
+  opacity: 1; 
+}
+
 input[type="number"]::-webkit-outer-spin-button,
 input[type="number"]::-webkit-inner-spin-button {
   -webkit-appearance: none;
   margin: 0;
+}
+
+@keyframes wiggle {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.04) rotate(0.5deg); }
+  100% { transform: scale(1); }
 }
