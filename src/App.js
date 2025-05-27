@@ -13,6 +13,7 @@ import {
   deleteDoc,
 } from "firebase/firestore";
 import Select from "react-select";
+import championVoiceMap from './data/champion_voice_map.json';
 
 function App() {
   const [champions, setChampions] = useState([]);
@@ -238,7 +239,7 @@ function App() {
   const [showFilteredAccounts, setShowFilteredAccounts] = useState(false);
   const rankOptions = [
     { value: "", label: "Choose a rank" },
-    ...["iron", "bronze", "silver", "gold", "platinum", "emerald", "diamond", "master", "grandmaster", "challenger"].map((tier) => ({
+    ...["unranked", "iron", "bronze", "silver", "gold", "platinum", "emerald", "diamond", "master", "grandmaster", "challenger"].map((tier) => ({
       value: tier,
       label: (
         <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
@@ -257,6 +258,19 @@ function App() {
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [removeSuccess, setRemoveSuccess] = useState(false);
   const [showConfirmRemove, setShowConfirmRemove] = useState(false);
+  const playChampionVoice = (championName) => {
+    const champ = championVoiceMap[championName];
+    if (!champ) return;
+
+    const audio = new Audio(champ.audio);
+    audio.volume = 0.1;
+    audio.play().catch((err) =>
+      console.warn(`Erro ao tocar voz de ${championName}:`, err)
+    );
+  };
+  const [penaltiesByAccount, setPenaltiesByAccount] = useState({});
+  const [showPenaltyTooltip, setShowPenaltyTooltip] = useState(false);
+
 
   function getQueueKey(queueLabel) {
     return queueLabel === "Flex" ? "flex" : "soloDuo";
@@ -319,6 +333,7 @@ function App() {
         const champsData = {};
         const details = {};
         const eloData = {};
+        const penaltiesData = {};
 
         snapshot.forEach((docSnap) => {
           const data = docSnap.data();
@@ -344,12 +359,14 @@ function App() {
               queue: "flex",
             }
           };
+          penaltiesData[docSnap.id] = data.penalty || "";
         });
 
         setAccounts(accountsList);
         setOwnedChampsByAccount(champsData);
         setAccountDetails(details);
         setEloDataByAccount(eloData);
+        setPenaltiesByAccount(penaltiesData);
         setSelectedAccount("");
       } catch (error) {
         console.error("Erro ao buscar contas do Firestore:", error);
@@ -952,9 +969,15 @@ function App() {
               }
               onChange={(selectedOptions) => {
                 const selected = selectedOptions || [];
+                const lastSelected = selected[selected.length - 1];
+
+                if (lastSelected) {
+                  playChampionVoice(lastSelected.value); // ← aqui toca o áudio
+                }
+
                 setSelectedChampionsFilter(selected.map(opt => opt.value));
-                setSelectedAccount(""); // ← Resetar conta selecionada
-                setShowFilteredAccounts(false); // ← Oculta o resultado filtrado anterior
+                setSelectedAccount("");
+                setShowFilteredAccounts(false);
               }}
               placeholder="Champions..."
               styles={{
@@ -1070,7 +1093,82 @@ function App() {
               minWidth: "200px",
             }}
           >
-            <h2 style={{ marginTop: 0 }}>Dados da Conta</h2>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                marginBottom: "20px",
+              }}
+            >
+              <h2 style={{ margin: 0 }}>Dados da Conta</h2>
+
+              <div
+                style={{ position: "relative" }}
+                onMouseEnter={() => setShowPenaltyTooltip(true)}
+                onMouseLeave={() => setShowPenaltyTooltip(false)}
+              >
+                <div
+onClick={async () => {
+  const current = penaltiesByAccount[selectedAccount] || "";
+  const input = prompt("Digite a penalidade (ex: 2x ng ou 1x 15m):", current);
+  if (input !== null) {
+    const trimmed = input.trim();
+    setPenaltiesByAccount((prev) => ({
+      ...prev,
+      [selectedAccount]: trimmed,
+    }));
+
+    try {
+      await updateDoc(doc(db, "accounts", selectedAccount), {
+        penalty: trimmed,
+      });
+    } catch (error) {
+      console.error("Erro ao salvar penalidade:", error);
+      alert("Erro ao salvar penalidade no Firestore.");
+    }
+  }
+}}
+                >
+                  <img
+                    src={
+                      penaltiesByAccount[selectedAccount]
+                        ? "/icons/penalty-alert.png"
+                        : "/icons/penalty-ok.png"
+                    }
+                    alt="penalidade"
+                    style={{
+                      width: "24px",
+                      height: "24px",
+                      objectFit: "contain",
+                    }}
+                  />
+                </div>
+
+                {penaltiesByAccount[selectedAccount] && showPenaltyTooltip && (
+                  <div
+                    style={{
+                      position: "absolute",
+                      top: "100%",
+                      right: 0,
+                      backgroundColor: "#333",
+                      color: "#fff",
+                      padding: "6px 10px",
+                      borderRadius: "6px",
+                      fontSize: "12px",
+                      whiteSpace: "nowrap",
+                      boxShadow: "0 2px 6px rgba(0,0,0,0.3)",
+                      marginTop: "6px",
+                      zIndex: 10,
+                    }}
+                  >
+                    Penalidade: {penaltiesByAccount[selectedAccount]}
+                  </div>
+                )}
+              </div>
+
+
+            </div>
 
             <div
               style={{
@@ -1196,7 +1294,7 @@ function App() {
               display: "flex",
               alignItems: "center",
               justifyContent: "space-between",
-              marginBottom: "10px"
+              marginBottom: "13px"
             }}>
               <h2 style={{ margin: 0 }}>Elo</h2>
 

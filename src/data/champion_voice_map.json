@@ -1,0 +1,650 @@
+{
+  "Aatrox": {
+    "id": 266,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/266.ogg"
+  },
+  "Ahri": {
+    "id": 103,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/103.ogg"
+  },
+  "Akali": {
+    "id": 84,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/84.ogg"
+  },
+  "Alistar": {
+    "id": 12,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/12.ogg"
+  },
+  "Amumu": {
+    "id": 32,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/32.ogg"
+  },
+  "Anivia": {
+    "id": 34,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/34.ogg"
+  },
+  "Annie": {
+    "id": 1,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/1.ogg"
+  },
+  "Aphelios": {
+    "id": 523,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/523.ogg"
+  },
+  "Ashe": {
+    "id": 22,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/22.ogg"
+  },
+  "AurelionSol": {
+    "id": 136,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/136.ogg"
+  },
+  "Azir": {
+    "id": 268,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/268.ogg"
+  },
+  "Bard": {
+    "id": 432,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/432.ogg"
+  },
+  "Belveth": {
+    "id": 200,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/200.ogg"
+  },
+  "Blitzcrank": {
+    "id": 53,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/53.ogg"
+  },
+  "Brand": {
+    "id": 63,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/63.ogg"
+  },
+  "Braum": {
+    "id": 201,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/201.ogg"
+  },
+  "Caitlyn": {
+    "id": 51,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/51.ogg"
+  },
+  "Camille": {
+    "id": 164,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/164.ogg"
+  },
+  "Cassiopeia": {
+    "id": 69,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/69.ogg"
+  },
+  "ChoGath": {
+    "id": 31,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/31.ogg"
+  },
+  "Corki": {
+    "id": 42,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/42.ogg"
+  },
+  "Darius": {
+    "id": 122,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/122.ogg"
+  },
+  "Diana": {
+    "id": 131,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/131.ogg"
+  },
+  "Draven": {
+    "id": 119,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/119.ogg"
+  },
+  "DrMundo": {
+    "id": 36,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/36.ogg"
+  },
+  "Ekko": {
+    "id": 245,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/245.ogg"
+  },
+  "Elise": {
+    "id": 60,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/60.ogg"
+  },
+  "Evelynn": {
+    "id": 28,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/28.ogg"
+  },
+  "Ezreal": {
+    "id": 81,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/81.ogg"
+  },
+  "Fiddlesticks": {
+    "id": 9,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/9.ogg"
+  },
+  "Fiora": {
+    "id": 114,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/114.ogg"
+  },
+  "Fizz": {
+    "id": 105,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/105.ogg"
+  },
+  "Galio": {
+    "id": 3,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/3.ogg"
+  },
+  "Gangplank": {
+    "id": 41,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/41.ogg"
+  },
+  "Garen": {
+    "id": 86,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/86.ogg"
+  },
+  "Gnar": {
+    "id": 150,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/150.ogg"
+  },
+  "Gragas": {
+    "id": 79,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/79.ogg"
+  },
+  "Graves": {
+    "id": 104,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/104.ogg"
+  },
+  "Gwen": {
+    "id": 887,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/887.ogg"
+  },
+  "Hecarim": {
+    "id": 120,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/120.ogg"
+  },
+  "Heimerdinger": {
+    "id": 74,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/74.ogg"
+  },
+  "Illaoi": {
+    "id": 420,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/420.ogg"
+  },
+  "Irelia": {
+    "id": 39,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/39.ogg"
+  },
+  "Ivern": {
+    "id": 427,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/427.ogg"
+  },
+  "Janna": {
+    "id": 40,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/40.ogg"
+  },
+  "JarvanIV": {
+    "id": 59,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/59.ogg"
+  },
+  "Jax": {
+    "id": 24,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/24.ogg"
+  },
+  "Jayce": {
+    "id": 126,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/126.ogg"
+  },
+  "Jhin": {
+    "id": 202,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/202.ogg"
+  },
+  "Jinx": {
+    "id": 222,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/222.ogg"
+  },
+  "Kaisa": {
+    "id": 145,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/145.ogg"
+  },
+  "Kalista": {
+    "id": 429,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/429.ogg"
+  },
+  "Karma": {
+    "id": 43,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/43.ogg"
+  },
+  "Karthus": {
+    "id": 30,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/30.ogg"
+  },
+  "Kassadin": {
+    "id": 38,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/38.ogg"
+  },
+  "Katarina": {
+    "id": 55,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/55.ogg"
+  },
+  "Kayle": {
+    "id": 10,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/10.ogg"
+  },
+  "Kayn": {
+    "id": 141,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/141.ogg"
+  },
+  "Kennen": {
+    "id": 85,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/85.ogg"
+  },
+  "Khazix": {
+    "id": 121,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/121.ogg"
+  },
+  "Kindred": {
+    "id": 203,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/203.ogg"
+  },
+  "Kled": {
+    "id": 240,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/240.ogg"
+  },
+  "KogMaw": {
+    "id": 96,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/96.ogg"
+  },
+  "Leblanc": {
+    "id": 7,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/7.ogg"
+  },
+  "LeeSin": {
+    "id": 64,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/64.ogg"
+  },
+  "Leona": {
+    "id": 89,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/89.ogg"
+  },
+  "Lillia": {
+    "id": 876,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/876.ogg"
+  },
+  "Lissandra": {
+    "id": 127,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/127.ogg"
+  },
+  "Lucian": {
+    "id": 236,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/236.ogg"
+  },
+  "Lulu": {
+    "id": 117,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/117.ogg"
+  },
+  "Lux": {
+    "id": 99,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/99.ogg"
+  },
+  "Malphite": {
+    "id": 54,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/54.ogg"
+  },
+  "Malzahar": {
+    "id": 90,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/90.ogg"
+  },
+  "Maokai": {
+    "id": 57,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/57.ogg"
+  },
+  "MasterYi": {
+    "id": 11,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/11.ogg"
+  },
+  "Milio": {
+    "id": 902,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/902.ogg"
+  },
+  "MissFortune": {
+    "id": 21,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/21.ogg"
+  },
+  "MonkeyKing": {
+    "id": 62,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/62.ogg"
+  },
+  "Mordekaiser": {
+    "id": 82,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/82.ogg"
+  },
+  "Morgana": {
+    "id": 25,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/25.ogg"
+  },
+  "Nami": {
+    "id": 267,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/267.ogg"
+  },
+  "Nasus": {
+    "id": 75,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/75.ogg"
+  },
+  "Nautilus": {
+    "id": 111,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/111.ogg"
+  },
+  "Neeko": {
+    "id": 518,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/518.ogg"
+  },
+  "Nidalee": {
+    "id": 76,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/76.ogg"
+  },
+  "Nilah": {
+    "id": 895,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/895.ogg"
+  },
+  "Nocturne": {
+    "id": 56,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/56.ogg"
+  },
+  "Nunu": {
+    "id": 20,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/20.ogg"
+  },
+  "Olaf": {
+    "id": 2,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/2.ogg"
+  },
+  "Orianna": {
+    "id": 61,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/61.ogg"
+  },
+  "Ornn": {
+    "id": 516,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/516.ogg"
+  },
+  "Pantheon": {
+    "id": 80,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/80.ogg"
+  },
+  "Poppy": {
+    "id": 78,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/78.ogg"
+  },
+  "Pyke": {
+    "id": 555,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/555.ogg"
+  },
+  "Qiyana": {
+    "id": 246,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/246.ogg"
+  },
+  "Quinn": {
+    "id": 133,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/133.ogg"
+  },
+  "Rakan": {
+    "id": 497,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/497.ogg"
+  },
+  "Rammus": {
+    "id": 33,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/33.ogg"
+  },
+  "RekSai": {
+    "id": 421,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/421.ogg"
+  },
+  "Rell": {
+    "id": 526,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/526.ogg"
+  },
+  "Renata": {
+    "id": 888,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/888.ogg"
+  },
+  "Renekton": {
+    "id": 58,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/58.ogg"
+  },
+  "Rengar": {
+    "id": 107,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/107.ogg"
+  },
+  "Riven": {
+    "id": 92,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/92.ogg"
+  },
+  "Rumble": {
+    "id": 68,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/68.ogg"
+  },
+  "Ryze": {
+    "id": 13,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/13.ogg"
+  },
+  "Samira": {
+    "id": 360,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/360.ogg"
+  },
+  "Sejuani": {
+    "id": 113,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/113.ogg"
+  },
+  "Senna": {
+    "id": 235,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/235.ogg"
+  },
+  "Seraphine": {
+    "id": 147,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/147.ogg"
+  },
+  "Sett": {
+    "id": 875,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/875.ogg"
+  },
+  "Shaco": {
+    "id": 35,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/35.ogg"
+  },
+  "Shen": {
+    "id": 98,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/98.ogg"
+  },
+  "Shyvana": {
+    "id": 102,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/102.ogg"
+  },
+  "Singed": {
+    "id": 27,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/27.ogg"
+  },
+  "Sion": {
+    "id": 14,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/14.ogg"
+  },
+  "Sivir": {
+    "id": 15,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/15.ogg"
+  },
+  "Skarner": {
+    "id": 72,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/72.ogg"
+  },
+  "Sona": {
+    "id": 37,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/37.ogg"
+  },
+  "Soraka": {
+    "id": 16,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/16.ogg"
+  },
+  "Swain": {
+    "id": 50,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/50.ogg"
+  },
+  "Sylas": {
+    "id": 517,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/517.ogg"
+  },
+  "Syndra": {
+    "id": 134,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/134.ogg"
+  },
+  "TahmKench": {
+    "id": 223,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/223.ogg"
+  },
+  "Taliyah": {
+    "id": 163,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/163.ogg"
+  },
+  "Talon": {
+    "id": 91,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/91.ogg"
+  },
+  "Taric": {
+    "id": 44,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/44.ogg"
+  },
+  "Teemo": {
+    "id": 17,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/17.ogg"
+  },
+  "Thresh": {
+    "id": 412,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/412.ogg"
+  },
+  "Tristana": {
+    "id": 18,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/18.ogg"
+  },
+  "Trundle": {
+    "id": 48,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/48.ogg"
+  },
+  "Tryndamere": {
+    "id": 23,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/23.ogg"
+  },
+  "TwistedFate": {
+    "id": 4,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/4.ogg"
+  },
+  "Twitch": {
+    "id": 29,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/29.ogg"
+  },
+  "Udyr": {
+    "id": 77,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/77.ogg"
+  },
+  "Urgot": {
+    "id": 6,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/6.ogg"
+  },
+  "Varus": {
+    "id": 110,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/110.ogg"
+  },
+  "Vayne": {
+    "id": 67,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/67.ogg"
+  },
+  "Veigar": {
+    "id": 45,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/45.ogg"
+  },
+  "Velkoz": {
+    "id": 161,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/161.ogg"
+  },
+  "Vex": {
+    "id": 711,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/711.ogg"
+  },
+  "Vi": {
+    "id": 254,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/254.ogg"
+  },
+  "Viego": {
+    "id": 234,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/234.ogg"
+  },
+  "Viktor": {
+    "id": 112,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/112.ogg"
+  },
+  "Vladimir": {
+    "id": 8,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/8.ogg"
+  },
+  "Volibear": {
+    "id": 106,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/106.ogg"
+  },
+  "Warwick": {
+    "id": 19,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/19.ogg"
+  },
+  "Wukong": {
+    "id": 62,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/62.ogg"
+  },
+  "Xayah": {
+    "id": 498,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/498.ogg"
+  },
+  "Xerath": {
+    "id": 101,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/101.ogg"
+  },
+  "XinZhao": {
+    "id": 5,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/5.ogg"
+  },
+  "Yasuo": {
+    "id": 157,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/157.ogg"
+  },
+  "Yone": {
+    "id": 777,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/777.ogg"
+  },
+  "Yorick": {
+    "id": 83,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/83.ogg"
+  },
+  "Yuumi": {
+    "id": 350,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/350.ogg"
+  },
+  "Zac": {
+    "id": 154,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/154.ogg"
+  },
+  "Zed": {
+    "id": 238,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/238.ogg"
+  },
+  "Zeri": {
+    "id": 221,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/221.ogg"
+  },
+  "Ziggs": {
+    "id": 115,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/115.ogg"
+  },
+  "Zilean": {
+    "id": 26,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/26.ogg"
+  },
+  "Zoe": {
+    "id": 142,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/142.ogg"
+  },
+  "Zyra": {
+    "id": 143,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/143.ogg"
+  }
+}
