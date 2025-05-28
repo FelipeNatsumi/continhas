@@ -270,7 +270,8 @@ function App() {
   };
   const [penaltiesByAccount, setPenaltiesByAccount] = useState({});
   const [showPenaltyTooltip, setShowPenaltyTooltip] = useState(false);
-
+  const [activeTab, setActiveTab] = useState("champions"); // ou "skins"
+  const [skins, setSkins] = useState([]);
 
   function getQueueKey(queueLabel) {
     return queueLabel === "Flex" ? "flex" : "soloDuo";
@@ -300,29 +301,61 @@ function App() {
   }, []);
 
   // Carregar campeões da versão mais recente da Riot
-  useEffect(() => {
-    const fetchChampions = async () => {
-      try {
-        // Passo 1: buscar a versão mais recente
-        const versionRes = await fetch("https://ddragon.leagueoflegends.com/api/versions.json");
-        const versions = await versionRes.json();
-        const latestVersion = versions[0];
-        setDdragonVersion(latestVersion);
+useEffect(() => {
+  const fetchChampions = async () => {
+    try {
+      const versionRes = await fetch("https://ddragon.leagueoflegends.com/api/versions.json");
+      const versions = await versionRes.json();
+      const latestVersion = versions[0];
+      setDdragonVersion(latestVersion);
 
-        // Passo 2: buscar os campeões usando a versão correta
-        const champsRes = await fetch(
-          `https://ddragon.leagueoflegends.com/cdn/${latestVersion}/data/en_US/champion.json`
-        );
-        const champsData = await champsRes.json();
-        const champsArray = Object.values(champsData.data);
-        setChampions(champsArray);
-      } catch (err) {
-        console.error("Erro ao carregar campeões:", err);
-      }
-    };
+      const champsRes = await fetch(
+        `https://ddragon.leagueoflegends.com/cdn/${latestVersion}/data/en_US/champion.json`
+      );
+      const champsData = await champsRes.json();
+      const champsArray = Object.values(champsData.data);
+      setChampions(champsArray);
 
-    fetchChampions();
-  }, []);
+      // Agora carrega skins também
+      await fetchSkins(champsArray, latestVersion);
+    } catch (err) {
+      console.error("Erro ao carregar campeões:", err);
+    }
+  };
+
+const fetchSkins = async (championsList, version) => {
+  const allSkins = [];
+
+  for (const champ of championsList) {
+    try {
+      // Nome corrigido apenas para a URL
+      const championIdForUrl = champ.id === "Fiddlesticks" ? "FiddleSticks" : champ.id;
+
+      const res = await fetch(`https://ddragon.leagueoflegends.com/cdn/${version}/data/en_US/champion/${championIdForUrl}.json`);
+      const data = await res.json();
+
+      // Usa champ.id original (sempre será a chave correta dentro de data.data)
+      const skinsList = data.data[champ.id].skins.map(skin => ({
+        id: skin.id,
+        champId: champ.id,
+        name: skin.name === "default" ? champ.name : skin.name,
+        num: skin.num,
+      }));
+
+      allSkins.push(...skinsList);
+    } catch (error) {
+      console.error(`Erro ao carregar skins do campeão ${champ.id}:`, error);
+    }
+  }
+
+  setSkins(allSkins);
+};
+
+
+
+  fetchChampions();
+}, []);
+
 
   // Carregar contas e dados do Firestore
   useEffect(() => {
@@ -919,6 +952,12 @@ function App() {
             </label>
             <Select
               isMulti
+              isSearchable={true}
+              filterOption={(option, inputValue) => {
+                const normalizedInput = inputValue.toLowerCase();
+                if (!option.data.searchTerms) return false;
+                return option.data.searchTerms.some(term => term.includes(normalizedInput));
+              }}
               options={champions.map(champ => ({
                 value: champ.id,
                 label: (
@@ -933,21 +972,12 @@ function App() {
                         borderRadius: "50%",
                       }}
                     />
-                    <span>{champ.name}</span>
+                    <span>{champ.id === "MonkeyKing" ? "Wukong" : champ.name}</span>
                   </div>
                 ),
-                icon: (
-                  <img
-                    src={`https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/champion/${champ.id}.png`}
-                    alt={champ.name}
-                    style={{
-                      width: "20px",
-                      height: "20px",
-                      objectFit: "cover",
-                      borderRadius: "50%",
-                    }}
-                  />
-                )
+                searchTerms: [
+                  champ.id === "MonkeyKing" ? "wukong" : champ.id.toLowerCase()
+                ]
               }))}
               value={champions
                 .filter(c => selectedChampionsFilter.includes(c.id))
@@ -1109,26 +1139,26 @@ function App() {
                 onMouseLeave={() => setShowPenaltyTooltip(false)}
               >
                 <div
-onClick={async () => {
-  const current = penaltiesByAccount[selectedAccount] || "";
-  const input = prompt("Digite a penalidade (ex: 2x ng ou 1x 15m):", current);
-  if (input !== null) {
-    const trimmed = input.trim();
-    setPenaltiesByAccount((prev) => ({
-      ...prev,
-      [selectedAccount]: trimmed,
-    }));
+                  onClick={async () => {
+                    const current = penaltiesByAccount[selectedAccount] || "";
+                    const input = prompt("Digite a penalidade (ex: 2x ng ou 1x 15m):", current);
+                    if (input !== null) {
+                      const trimmed = input.trim();
+                      setPenaltiesByAccount((prev) => ({
+                        ...prev,
+                        [selectedAccount]: trimmed,
+                      }));
 
-    try {
-      await updateDoc(doc(db, "accounts", selectedAccount), {
-        penalty: trimmed,
-      });
-    } catch (error) {
-      console.error("Erro ao salvar penalidade:", error);
-      alert("Erro ao salvar penalidade no Firestore.");
-    }
-  }
-}}
+                      try {
+                        await updateDoc(doc(db, "accounts", selectedAccount), {
+                          penalty: trimmed,
+                        });
+                      } catch (error) {
+                        console.error("Erro ao salvar penalidade:", error);
+                        alert("Erro ao salvar penalidade no Firestore.");
+                      }
+                    }
+                  }}
                 >
                   <img
                     src={
@@ -1264,7 +1294,7 @@ onClick={async () => {
                   ...buttonstyle,
                   backgroundColor: saveSuccess ? "#4caf50" : "#1976d2",
                   height: "32px",
-                  marginTop: "10px",
+                  marginTop: "12px",
                   transition: "all 0.3s ease",
                 }}
               >
@@ -1342,7 +1372,6 @@ onClick={async () => {
                       style={{ width: "120px", height: "120px", objectFit: "contain" }}
                     />
                     <div style={{ flex: 1 }}>
-                      {/* Selects de Tier + Divisão */}
                       {/* Selects de Tier e Divisão, ou Pontos (LP) para elos altos */}
                       <div style={{ display: "flex", gap: "10px", marginBottom: "10px", flexWrap: "wrap" }}>
                         <select
@@ -1379,7 +1408,7 @@ onClick={async () => {
                         {/* Tier alto: Master+ não tem divisão */}
                         {["master", "grandmaster", "challenger"].includes(currentData.tier) ? null : (
                           <select
-                            style={{ ...inputStyle, flex: 1 }}
+                            style={{ ...inputStyle, flex: 1.2 }}
                             value={currentData.division || ""}
                             onChange={(e) =>
                               setEloDataByAccount((prev) => ({
@@ -1594,7 +1623,7 @@ onClick={async () => {
             {/* Filtro por rota */}
             <div
               style={{
-                marginTop: "30px",
+                marginTop: "35px",
                 display: "flex",
                 gap: "15px",
                 alignItems: "center",
@@ -1610,8 +1639,8 @@ onClick={async () => {
                   title={role}
                   onClick={() => setSelectedRole(selectedRole === role ? "" : role)}
                   style={{
-                    width: "40px",
-                    height: "40px",
+                    width: "35px",
+                    height: "35px",
                     cursor: "pointer",
                     filter: selectedRole === role ? "none" : "grayscale(100%)",
                     borderRadius: "8px",
@@ -1675,125 +1704,297 @@ onClick={async () => {
         )}
       </div>
 
-      {/* Mostrar campeões apenas se não estiver filtrando por elo */}
-      {!showFilteredAccounts && (
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))",
-            gap: "15px",
-          }}
-        >
-          {champions
-            .sort((a, b) => a.name.localeCompare(b.name))
-            .filter((champ) => {
-              if (showOnlyOwned && !isOwned(champ.id)) return false;
-              if (
-                selectedRole &&
-                !championsByRole[selectedRole]?.includes(champ.id)
-              )
-                return false;
-              return true;
-            })
-            .map((champ) => {
-              const owned = isOwned(champ.id);
-              return (
-                <div
-                  key={champ.id}
-                  onClick={() => toggleChampion(champ.id)}
+{selectedAccount && !showFilteredAccounts && (
+  <>
+    {/* Seletor de aba */}
+<div
+  style={{
+    display: "flex",
+    justifyContent: "center",
+    gap: "600px",
+    margin: "30px 0 40px",
+  }}
+>
+  <div
+    onClick={() => setActiveTab("champions")}
+    style={{
+      cursor: "pointer",
+      fontSize: "1.1rem",
+      fontWeight: "bold",
+      color: activeTab === "champions" ? "#00ced1" : isDarkMode ? "#aaa" : "#444",
+      backgroundColor: activeTab === "champions" ? (isDarkMode ? "#2a2a2a" : "#e3f2fd") : "transparent",
+      padding: "10px 20px",
+      borderRadius: "20px",
+      transition: "all 0.3s ease",
+      transform: activeTab === "champions" ? "scale(1.05)" : "scale(1)",
+      boxShadow: activeTab === "champions" ? "0 2px 8px rgba(0,0,0,0.15)" : "none",
+    }}
+  >
+    Champions
+  </div>
+
+  <div
+    onClick={() => setActiveTab("skins")}
+    style={{
+      cursor: "pointer",
+      fontSize: "1.1rem",
+      fontWeight: "bold",
+      color: activeTab === "skins" ? "#00ced1" : isDarkMode ? "#aaa" : "#444",
+      backgroundColor: activeTab === "skins" ? (isDarkMode ? "#2a2a2a" : "#e3f2fd") : "transparent",
+      padding: "10px 20px",
+      borderRadius: "20px",
+      transition: "all 0.3s ease",
+      transform: activeTab === "skins" ? "scale(1.05)" : "scale(1)",
+      boxShadow: activeTab === "skins" ? "0 2px 8px rgba(0,0,0,0.15)" : "none",
+    }}
+  >
+    Skins
+  </div>
+</div>
+
+
+
+    {/* Grid de Campeões */}
+    {activeTab === "champions" && (
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))",
+          gap: "15px",
+        }}
+      >
+        {champions
+          .sort((a, b) => a.name.localeCompare(b.name))
+          .filter((champ) => {
+            if (showOnlyOwned && !isOwned(champ.id)) return false;
+            if (
+              selectedRole &&
+              !championsByRole[selectedRole]?.includes(champ.id)
+            )
+              return false;
+            return true;
+          })
+          .map((champ) => {
+            const owned = isOwned(champ.id);
+            return (
+              <div
+                key={champ.id}
+                onClick={() => toggleChampion(champ.id)}
+                style={{
+                  cursor: "pointer",
+                  textAlign: "center",
+                  borderRadius: "10px",
+                  border: "none",
+                  boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
+                  filter: owned ? "none" : "grayscale(100%) brightness(60%)",
+                  overflow: "hidden",
+                  transition: "all 0.3s ease-in-out",
+                  backgroundColor: isDarkMode ? "#1a1a1a" : "#fff",
+                }}
+                title={
+                  owned
+                    ? "Você possui este campeão nesta conta"
+                    : "Clique para marcar como possuído"
+                }
+              >
+                <img
+                  src={`https://ddragon.leagueoflegends.com/cdn/img/champion/splash/${champ.id}_0.jpg`}
+                  alt={champ.name}
                   style={{
-                    cursor: "pointer",
-                    textAlign: "center",
-                    borderRadius: "10px",
-                    border: "none",
-                    boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
-                    filter: owned ? "none" : "grayscale(100%) brightness(60%)",
-                    overflow: "hidden",
-                    transition: "all 0.3s ease-in-out",
-                    backgroundColor: isDarkMode ? "#1a1a1a" : "#fff",
+                    width: "100%",
+                    borderRadius: "8px",
+                    transition: "transform 0.3s ease",
                   }}
-                  title={
-                    owned
-                      ? "Você possui este campeão nesta conta"
-                      : "Clique para marcar como possuído"
+                  onMouseOver={(e) =>
+                    (e.currentTarget.style.transform = "scale(1.10)")
                   }
+                  onMouseOut={(e) =>
+                    (e.currentTarget.style.transform = "scale(1)")
+                  }
+                />
+                <p style={{ fontSize: "0.85rem", margin: "6px 0" }}>
+                  {champ.name}
+                </p>
+              </div>
+            );
+          })}
+      </div>
+    )}
+
+    {/* Grid de Skins */}
+    {activeTab === "skins" && (
+      <div style={{ marginTop: "20px" }}>
+        {champions
+          .sort((a, b) => a.name.localeCompare(b.name)) // ordem alfabética
+          .map((champ) => {
+            const champSkins = skins.filter(
+              (skin) => skin.champId === champ.id && skin.num !== 0
+            );
+
+            if (champSkins.length === 0) return null;
+
+            return (
+              <div key={champ.id} style={{ marginBottom: "40px" }}>
+                <h3
+                  style={{
+                    marginBottom: "12px",
+                    fontSize: "1.3rem",
+                    color: isDarkMode ? "#fff" : "#333",
+                    display: "inline-block",
+                    paddingBottom: "4px",
+                  }}
                 >
-                  <img
-                    src={`https://ddragon.leagueoflegends.com/cdn/img/champion/splash/${champ.id}_0.jpg`}
-                    alt={champ.name}
-                    style={{
-                      width: "100%",
-                      borderRadius: "8px",
-                      transition: "transform 0.3s ease",
-                    }}
-                    onMouseOver={(e) =>
-                      (e.currentTarget.style.transform = "scale(1.10)")
-                    }
-                    onMouseOut={(e) =>
-                      (e.currentTarget.style.transform = "scale(1)")
-                    }
-                  />
-                  <p style={{ fontSize: "0.85rem", margin: "6px 0" }}>
-                    {champ.name}
-                  </p>
+                  {champ.name}
+                </h3>
+
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "repeat(auto-fill, 160px)",
+                    justifyContent: "center",
+                    gap: "15px",
+                    marginTop: "10px",
+                  }}
+                >
+                  {champSkins.map((skin) => (
+                    <div
+                      key={skin.id}
+                      style={{
+                        width: "160px",
+                        textAlign: "center",
+                        borderRadius: "10px",
+                        boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
+                        backgroundColor: isDarkMode ? "#1a1a1a" : "#fff",
+                        overflow: "hidden",
+                      }}
+                    >
+                      <img
+                        src={`https://ddragon.leagueoflegends.com/cdn/img/champion/loading/${skin.champId}_${skin.num}.jpg`}
+                        alt={skin.name}
+                        style={{
+                          width: "100%",
+                          height: "280px",
+                          objectFit: "cover",
+                          borderRadius: "8px",
+                        }}
+                      />
+                      <p style={{ fontSize: "0.85rem", margin: "6px 0" }}>{skin.name}</p>
+                    </div>
+                  ))}
                 </div>
-              );
-            })}
-        </div>
-      )}
+              </div>
+            );
+          })}
+      </div>
+    )}
+
+  </>
+)}
 
       {/* Mostrar lista de contas filtradas se showFilteredAccounts for true */}
-      {showFilteredAccounts && (
-        <div style={{ marginTop: "20px" }}>
-          <h3>
-            Contas encontradas
-            {selectedTierFilter && ` com elo ${selectedTierFilter.toUpperCase()}`}
-            {selectedChampionsFilter.length > 0 && ` com campeões: ${selectedChampionsFilter.join(", ")}`}
-            :
-          </h3>
-          {filteredAccounts.length === 0 ? (
-            <p>Nenhuma conta encontrada com esse elo.</p>
-          ) : (
-            <ul>
-              {filteredAccounts.map((acc) => (
-                <li
-                  key={acc}
-                  onClick={() => {
-                    setSelectedAccount(acc); // seleciona a conta
-                    setSelectedTierFilter(""); // reseta o filtro de elo
-                    setSelectedChampionsFilter([]); // ← limpa campeões
-                    setShowFilteredAccounts(false); // mostra campeões e dados da conta
-                  }}
-                  style={{
-                    marginBottom: "8px",
-                    cursor: "pointer",
-                    color: "#1976d2",
-                    fontWeight: "bold",
-                    textDecoration: "underline",
-                  }}
-                  title="Clique para ver detalhes da conta"
-                >
-                  {acc}
-                </li>
-              ))}
-            </ul>
-          )}
-          <button
-            style={{
-              marginTop: "10px",
-              padding: "6px 12px",
-              backgroundColor: "#e53935",
-              color: "white",
-              border: "none",
-              borderRadius: "4px",
-              cursor: "pointer",
-            }}
-            onClick={() => setShowFilteredAccounts(false)}
-          >
-            Voltar
-          </button>
-        </div>
-      )}
+      <div
+        style={{
+          display: "flex",
+          flexWrap: "wrap",
+          gap: "20px",
+          marginTop: "20px",
+          padding: "0 10px",
+        }}
+      >
+        {filteredAccounts.map((acc) => {
+          const elo = eloDataByAccount[acc]?.soloDuo || {};
+          const tier = elo.tier || "unranked";
+          const championsToShow = selectedChampionsFilter.slice(0, 6);
+          const tierColors = {
+            unranked: "#888",
+            iron: "#6e6e6e",
+            bronze: "#cd7f32",
+            silver: "#c0c0c0",
+            gold: "#d4af37",
+            platinum: "#00bfa5",
+            emerald: "#3ddc84",
+            diamond: "#536dfe",
+            master: "#ab47bc",
+            grandmaster: "#f44336",
+            challenger: "#00b0ff",
+          };
+          const totalGames = (elo.wins || 0) + (elo.losses || 0);
+          const winrate = totalGames > 0 ? ((elo.wins / totalGames) * 100).toFixed(1) : "0";
+          const wrColor = (() => {
+            if (totalGames === 0) return "#888";
+            const rate = (elo.wins / totalGames) * 100;
+            if (rate < 40) return "red";
+            if (rate >= 40 && rate < 50) return "orange";
+            if (rate === 50) return "#888";
+            if (rate > 50 && rate < 80) return "green";
+            return "blue";
+          })();
+
+          return (
+            <div
+              key={acc}
+              onClick={() => {
+                setSelectedAccount(acc);
+                setSelectedTierFilter("");
+                setSelectedChampionsFilter([]);
+                setShowFilteredAccounts(false);
+              }}
+              style={{
+                backgroundColor: isDarkMode ? "#1a1a1a" : "#ffffff",
+                borderRadius: "14px",
+                padding: "18px",
+                border: `1.5px solid ${tierColors[tier] || "#999"}`,
+                boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
+                cursor: "pointer",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                transition: "transform 0.2s ease, border-color 0.3s ease",
+                flex: "0 0 240px",
+              }}
+              onMouseOver={(e) => (e.currentTarget.style.transform = "scale(1.01)")}
+              onMouseOut={(e) => (e.currentTarget.style.transform = "scale(1)")}
+              title="Clique para ver detalhes da conta"
+            >
+              <img
+                src={`/emblems/${tier}.webp`}
+                alt={tier}
+                style={{
+                  width: "56px",
+                  height: "56px",
+                  marginBottom: "8px",
+                }}
+              />
+              <h4 style={{ margin: "6px 0", color: isDarkMode ? "#fff" : "#000" }}>{acc}</h4>
+              <p style={{ fontSize: "13px", margin: "2px 0", color: isDarkMode ? "#aaa" : "#555" }}>
+                {tier.toUpperCase()} {elo.division || ""} - {elo.lp || 0} LP
+              </p>
+              <p style={{ fontSize: "13px", color: wrColor }}>
+                {winrate}% WR ({elo.wins || 0}W / {elo.losses || 0}L)
+              </p>
+              <div style={{ display: "flex", gap: "6px", marginTop: "10px", flexWrap: "wrap", justifyContent: "center" }}>
+                {championsToShow.map((champId) => (
+                  <img
+                    key={champId}
+                    src={`https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/champion/${champId}.png`}
+                    alt={champId}
+                    style={{
+                      width: "24px",
+                      height: "24px",
+                      borderRadius: "50%",
+                      border: "1px solid #ccc",
+                      backgroundColor: "#222",
+                      objectFit: "cover",
+                    }}
+                    title={champId}
+                  />
+                ))}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
 
       {showConfirmRemove && (
         <div style={{
@@ -1872,4 +2073,4 @@ onClick={async () => {
   );
 }
 
-export default App;
+export default App;	

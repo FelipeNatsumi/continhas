@@ -11,9 +11,17 @@
     "id": 84,
     "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/84.ogg"
   },
+  "Akshan": {
+    "id": 166,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/166.ogg"
+  },
   "Alistar": {
     "id": 12,
     "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/12.ogg"
+  },
+  "Ambessa": {
+    "id": 799,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/799.ogg"
   },
   "Amumu": {
     "id": 32,
@@ -39,6 +47,10 @@
     "id": 136,
     "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/136.ogg"
   },
+  "Aurora": {
+    "id": 893,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/893.ogg"
+  },
   "Azir": {
     "id": 268,
     "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/268.ogg"
@@ -62,6 +74,10 @@
   "Braum": {
     "id": 201,
     "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/201.ogg"
+  },
+  "Briar": {
+    "id": 201,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/233.ogg"
   },
   "Caitlyn": {
     "id": 51,
@@ -163,6 +179,10 @@
     "id": 74,
     "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/74.ogg"
   },
+  "Hwei": {
+    "id": 910,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/910.ogg"
+  },
   "Illaoi": {
     "id": 420,
     "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/420.ogg"
@@ -198,6 +218,10 @@
   "Jinx": {
     "id": 222,
     "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/222.ogg"
+  },
+  "KSante": {
+    "id": 897,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/897.ogg"
   },
   "Kaisa": {
     "id": 145,
@@ -299,6 +323,10 @@
     "id": 11,
     "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/11.ogg"
   },
+  "Mel": {
+    "id": 800,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/800.ogg"
+  },
   "Milio": {
     "id": 902,
     "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/902.ogg"
@@ -318,6 +346,10 @@
   "Morgana": {
     "id": 25,
     "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/25.ogg"
+  },
+  "Naafiri": {
+    "id": 950,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/950.ogg"
   },
   "Nami": {
     "id": 267,
@@ -470,6 +502,10 @@
   "Skarner": {
     "id": 72,
     "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/72.ogg"
+  },
+  "Smolder": {
+    "id": 901,
+    "audio": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-choose-vo/901.ogg"
   },
   "Sona": {
     "id": 37,
