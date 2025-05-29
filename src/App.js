@@ -20,6 +20,7 @@ function App() {
   const [accounts, setAccounts] = useState([]);
   const [selectedAccount, setSelectedAccount] = useState("");
   const [ownedChampsByAccount, setOwnedChampsByAccount] = useState({});
+  const [ownedSkinsByAccount, setOwnedSkinsByAccount] = useState({});
   const [newAccountName, setNewAccountName] = useState("");
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [showOnlyOwned, setShowOnlyOwned] = useState(false);
@@ -272,6 +273,10 @@ function App() {
   const [showPenaltyTooltip, setShowPenaltyTooltip] = useState(false);
   const [activeTab, setActiveTab] = useState("champions"); // ou "skins"
   const [skins, setSkins] = useState([]);
+  const getCorrectedChampionIdForSkin = (champId) => {
+    if (champId === "Fiddlesticks") return "FiddleSticks";
+    return champId;
+  };
 
   function getQueueKey(queueLabel) {
     return queueLabel === "Flex" ? "flex" : "soloDuo";
@@ -301,61 +306,55 @@ function App() {
   }, []);
 
   // Carregar campeões da versão mais recente da Riot
-useEffect(() => {
-  const fetchChampions = async () => {
-    try {
-      const versionRes = await fetch("https://ddragon.leagueoflegends.com/api/versions.json");
-      const versions = await versionRes.json();
-      const latestVersion = versions[0];
-      setDdragonVersion(latestVersion);
+  useEffect(() => {
+    const fetchChampions = async () => {
+      try {
+        const versionRes = await fetch("https://ddragon.leagueoflegends.com/api/versions.json");
+        const versions = await versionRes.json();
+        const latestVersion = versions[0];
+        setDdragonVersion(latestVersion);
 
-      const champsRes = await fetch(
-        `https://ddragon.leagueoflegends.com/cdn/${latestVersion}/data/en_US/champion.json`
-      );
-      const champsData = await champsRes.json();
-      const champsArray = Object.values(champsData.data);
-      setChampions(champsArray);
+        const champsRes = await fetch(
+          `https://ddragon.leagueoflegends.com/cdn/${latestVersion}/data/en_US/champion.json`
+        );
+        const champsData = await champsRes.json();
+        const champsArray = Object.values(champsData.data);
+        setChampions(champsArray);
 
-      // Agora carrega skins também
-      await fetchSkins(champsArray, latestVersion);
-    } catch (err) {
-      console.error("Erro ao carregar campeões:", err);
-    }
-  };
+        // Agora carrega skins também
+        await fetchSkins(champsArray, latestVersion);
+      } catch (err) {
+        console.error("Erro ao carregar campeões:", err);
+      }
+    };
 
-const fetchSkins = async (championsList, version) => {
-  const allSkins = [];
+    const fetchSkins = async (championsList, version) => {
+      const allSkins = [];
 
-  for (const champ of championsList) {
-    try {
-      // Nome corrigido apenas para a URL
-      const championIdForUrl = champ.id === "Fiddlesticks" ? "FiddleSticks" : champ.id;
+      for (const champ of championsList) {
+        try {
+          const championIdForUrl = champ.id
 
-      const res = await fetch(`https://ddragon.leagueoflegends.com/cdn/${version}/data/en_US/champion/${championIdForUrl}.json`);
-      const data = await res.json();
+          const res = await fetch(`https://ddragon.leagueoflegends.com/cdn/${version}/data/en_US/champion/${championIdForUrl}.json`);
+          const data = await res.json();
 
-      // Usa champ.id original (sempre será a chave correta dentro de data.data)
-      const skinsList = data.data[champ.id].skins.map(skin => ({
-        id: skin.id,
-        champId: champ.id,
-        name: skin.name === "default" ? champ.name : skin.name,
-        num: skin.num,
-      }));
+          // Usa champ.id original (sempre será a chave correta dentro de data.data)
+          const skinsList = data.data[champ.id].skins.map(skin => ({
+            id: skin.id,
+            champId: champ.id,
+            name: skin.name === "default" ? champ.name : skin.name,
+            num: skin.num,
+          }));
 
-      allSkins.push(...skinsList);
-    } catch (error) {
-      console.error(`Erro ao carregar skins do campeão ${champ.id}:`, error);
-    }
-  }
-
-  setSkins(allSkins);
-};
-
-
-
-  fetchChampions();
-}, []);
-
+          allSkins.push(...skinsList);
+        } catch (error) {
+          console.error(`Erro ao carregar skins do campeão ${champ.id}:`, error);
+        }
+      }
+      setSkins(allSkins);
+    };
+    fetchChampions();
+  }, []);
 
   // Carregar contas e dados do Firestore
   useEffect(() => {
@@ -367,11 +366,13 @@ const fetchSkins = async (championsList, version) => {
         const details = {};
         const eloData = {};
         const penaltiesData = {};
+        const skinsData = {};
 
         snapshot.forEach((docSnap) => {
           const data = docSnap.data();
           accountsList.push(docSnap.id);
           champsData[docSnap.id] = data.ownedChamps || [];
+          skinsData[docSnap.id] = data.ownedSkins || [];
           details[docSnap.id] = {
             login: data.login || "",
             password: data.password || "",
@@ -397,6 +398,7 @@ const fetchSkins = async (championsList, version) => {
 
         setAccounts(accountsList);
         setOwnedChampsByAccount(champsData);
+        setOwnedSkinsByAccount(skinsData);
         setAccountDetails(details);
         setEloDataByAccount(eloData);
         setPenaltiesByAccount(penaltiesData);
@@ -420,6 +422,7 @@ const fetchSkins = async (championsList, version) => {
             doc(db, "accounts", account),
             {
               ownedChamps: owned,
+              ownedSkins: ownedSkinsByAccount[account] || [],
               ranked: eloDataByAccount[account] || {},
             },
             { merge: true }
@@ -534,6 +537,28 @@ const fetchSkins = async (championsList, version) => {
     });
   }
 
+  async function toggleSkin(skinId) {
+    if (!selectedAccount) {
+      alert("Selecione uma conta primeiro");
+      return;
+    }
+
+    const owned = ownedSkinsByAccount[selectedAccount] || [];
+    const newOwned = owned.includes(skinId)
+      ? owned.filter((id) => id !== skinId)
+      : [...owned, skinId];
+
+    const updated = {
+      ...ownedSkinsByAccount,
+      [selectedAccount]: newOwned,
+    };
+    setOwnedSkinsByAccount(updated);
+
+    await updateDoc(doc(db, "accounts", selectedAccount), {
+      ownedSkins: newOwned,
+    });
+  }
+
   {/*
   async function handleLogout() {
     await signOut(auth);
@@ -550,6 +575,12 @@ const fetchSkins = async (championsList, version) => {
   function getOwnedCount() {
     if (!selectedAccount) return 0;
     return (ownedChampsByAccount[selectedAccount] || []).length;
+  }
+
+  function isSkinOwned(skinId) {
+    if (!selectedAccount) return false;
+    const owned = ownedSkinsByAccount[selectedAccount] || [];
+    return owned.includes(skinId);
   }
 
   async function removeAccount(accountToRemove) {
@@ -870,7 +901,7 @@ const fetchSkins = async (championsList, version) => {
 
           <div style={{ marginTop: "20px" }}>
             <label style={{ fontWeight: "bold", display: "block", marginBottom: "6px" }}>
-              By Rank
+              By Rank:
             </label>
             <Select
               options={rankOptions}
@@ -948,7 +979,7 @@ const fetchSkins = async (championsList, version) => {
 
           <div style={{ marginTop: "14px" }}>
             <label style={{ fontWeight: "bold", display: "block", marginBottom: "6px" }}>
-              By Champion
+              By Champion:
             </label>
             <Select
               isMulti
@@ -1576,10 +1607,14 @@ const fetchSkins = async (championsList, version) => {
               minWidth: "300px",
             }}
           >
-            <h2 style={{ marginTop: 0 }}>Campeones</h2>
+            <h2 style={{ marginTop: 0 }}>
+              {activeTab === "champions" ? "Campeones" : "Skins"}
+            </h2>
 
             <p style={{ fontWeight: "bold", margin: "10px 0 8px" }}>
-              Campeões possuídos: {getOwnedCount()} / {champions.length}
+              {activeTab === "champions"
+                ? `Campeões possuídos: ${getOwnedCount()} / ${champions.length}`
+                : `Skins possuídas: ${ownedSkinsByAccount[selectedAccount]?.length || 0} / ${skins.length}`}
             </p>
 
             {/* Filtro por possuídos */}
@@ -1704,192 +1739,219 @@ const fetchSkins = async (championsList, version) => {
         )}
       </div>
 
-{selectedAccount && !showFilteredAccounts && (
-  <>
-    {/* Seletor de aba */}
-<div
-  style={{
-    display: "flex",
-    justifyContent: "center",
-    gap: "600px",
-    margin: "30px 0 40px",
-  }}
->
-  <div
-    onClick={() => setActiveTab("champions")}
-    style={{
-      cursor: "pointer",
-      fontSize: "1.1rem",
-      fontWeight: "bold",
-      color: activeTab === "champions" ? "#00ced1" : isDarkMode ? "#aaa" : "#444",
-      backgroundColor: activeTab === "champions" ? (isDarkMode ? "#2a2a2a" : "#e3f2fd") : "transparent",
-      padding: "10px 20px",
-      borderRadius: "20px",
-      transition: "all 0.3s ease",
-      transform: activeTab === "champions" ? "scale(1.05)" : "scale(1)",
-      boxShadow: activeTab === "champions" ? "0 2px 8px rgba(0,0,0,0.15)" : "none",
-    }}
-  >
-    Champions
-  </div>
+      {selectedAccount && !showFilteredAccounts && (
+        <>
+          {/* Seletor de aba */}
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              gap: "600px",
+              margin: "30px 0 40px",
+            }}
+          >
+            <div
+              onClick={() => setActiveTab("champions")}
+              style={{
+                cursor: "pointer",
+                fontSize: "1.1rem",
+                fontWeight: "bold",
+                color: activeTab === "champions" ? "#00ced1" : isDarkMode ? "#aaa" : "#444",
+                backgroundColor: activeTab === "champions" ? (isDarkMode ? "#2a2a2a" : "#e3f2fd") : "transparent",
+                padding: "10px 20px",
+                borderRadius: "20px",
+                transition: "all 0.3s ease",
+                transform: activeTab === "champions" ? "scale(1.05)" : "scale(1)",
+                boxShadow: activeTab === "champions" ? "0 2px 8px rgba(0,0,0,0.15)" : "none",
+              }}
+            >
+              Champions
+            </div>
 
-  <div
-    onClick={() => setActiveTab("skins")}
-    style={{
-      cursor: "pointer",
-      fontSize: "1.1rem",
-      fontWeight: "bold",
-      color: activeTab === "skins" ? "#00ced1" : isDarkMode ? "#aaa" : "#444",
-      backgroundColor: activeTab === "skins" ? (isDarkMode ? "#2a2a2a" : "#e3f2fd") : "transparent",
-      padding: "10px 20px",
-      borderRadius: "20px",
-      transition: "all 0.3s ease",
-      transform: activeTab === "skins" ? "scale(1.05)" : "scale(1)",
-      boxShadow: activeTab === "skins" ? "0 2px 8px rgba(0,0,0,0.15)" : "none",
-    }}
-  >
-    Skins
-  </div>
-</div>
+            <div
+              onClick={() => setActiveTab("skins")}
+              style={{
+                cursor: "pointer",
+                fontSize: "1.1rem",
+                fontWeight: "bold",
+                color: activeTab === "skins" ? "#00ced1" : isDarkMode ? "#aaa" : "#444",
+                backgroundColor: activeTab === "skins" ? (isDarkMode ? "#2a2a2a" : "#e3f2fd") : "transparent",
+                padding: "10px 20px",
+                borderRadius: "20px",
+                transition: "all 0.3s ease",
+                transform: activeTab === "skins" ? "scale(1.05)" : "scale(1)",
+                boxShadow: activeTab === "skins" ? "0 2px 8px rgba(0,0,0,0.15)" : "none",
+              }}
+            >
+              Skins
+            </div>
+          </div>
 
-
-
-    {/* Grid de Campeões */}
-    {activeTab === "champions" && (
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))",
-          gap: "15px",
-        }}
-      >
-        {champions
-          .sort((a, b) => a.name.localeCompare(b.name))
-          .filter((champ) => {
-            if (showOnlyOwned && !isOwned(champ.id)) return false;
-            if (
-              selectedRole &&
-              !championsByRole[selectedRole]?.includes(champ.id)
-            )
-              return false;
-            return true;
-          })
-          .map((champ) => {
-            const owned = isOwned(champ.id);
-            return (
-              <div
-                key={champ.id}
-                onClick={() => toggleChampion(champ.id)}
-                style={{
-                  cursor: "pointer",
-                  textAlign: "center",
-                  borderRadius: "10px",
-                  border: "none",
-                  boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
-                  filter: owned ? "none" : "grayscale(100%) brightness(60%)",
-                  overflow: "hidden",
-                  transition: "all 0.3s ease-in-out",
-                  backgroundColor: isDarkMode ? "#1a1a1a" : "#fff",
-                }}
-                title={
-                  owned
-                    ? "Você possui este campeão nesta conta"
-                    : "Clique para marcar como possuído"
-                }
-              >
-                <img
-                  src={`https://ddragon.leagueoflegends.com/cdn/img/champion/splash/${champ.id}_0.jpg`}
-                  alt={champ.name}
-                  style={{
-                    width: "100%",
-                    borderRadius: "8px",
-                    transition: "transform 0.3s ease",
-                  }}
-                  onMouseOver={(e) =>
-                    (e.currentTarget.style.transform = "scale(1.10)")
-                  }
-                  onMouseOut={(e) =>
-                    (e.currentTarget.style.transform = "scale(1)")
-                  }
-                />
-                <p style={{ fontSize: "0.85rem", margin: "6px 0" }}>
-                  {champ.name}
-                </p>
-              </div>
-            );
-          })}
-      </div>
-    )}
-
-    {/* Grid de Skins */}
-    {activeTab === "skins" && (
-      <div style={{ marginTop: "20px" }}>
-        {champions
-          .sort((a, b) => a.name.localeCompare(b.name)) // ordem alfabética
-          .map((champ) => {
-            const champSkins = skins.filter(
-              (skin) => skin.champId === champ.id && skin.num !== 0
-            );
-
-            if (champSkins.length === 0) return null;
-
-            return (
-              <div key={champ.id} style={{ marginBottom: "40px" }}>
-                <h3
-                  style={{
-                    marginBottom: "12px",
-                    fontSize: "1.3rem",
-                    color: isDarkMode ? "#fff" : "#333",
-                    display: "inline-block",
-                    paddingBottom: "4px",
-                  }}
-                >
-                  {champ.name}
-                </h3>
-
-                <div
-                  style={{
-                    display: "grid",
-                    gridTemplateColumns: "repeat(auto-fill, 160px)",
-                    justifyContent: "center",
-                    gap: "15px",
-                    marginTop: "10px",
-                  }}
-                >
-                  {champSkins.map((skin) => (
+          {/* Grid de Campeões */}
+          {activeTab === "champions" && (
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))",
+                gap: "15px",
+              }}
+            >
+              {champions
+                .sort((a, b) => a.name.localeCompare(b.name))
+                .filter((champ) => {
+                  if (showOnlyOwned && !isOwned(champ.id)) return false;
+                  if (
+                    selectedRole &&
+                    !championsByRole[selectedRole]?.includes(champ.id)
+                  )
+                    return false;
+                  return true;
+                })
+                .map((champ) => {
+                  const owned = isOwned(champ.id);
+                  return (
                     <div
-                      key={skin.id}
+                      key={champ.id}
+                      onClick={() => toggleChampion(champ.id)}
                       style={{
-                        width: "160px",
+                        cursor: "pointer",
                         textAlign: "center",
                         borderRadius: "10px",
+                        border: "none",
                         boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
-                        backgroundColor: isDarkMode ? "#1a1a1a" : "#fff",
+                        filter: owned ? "none" : "grayscale(100%) brightness(60%)",
                         overflow: "hidden",
+                        transition: "all 0.3s ease-in-out",
+                        backgroundColor: isDarkMode ? "#1a1a1a" : "#fff",
                       }}
+                      title={
+                        owned
+                          ? "Você possui este campeão nesta conta"
+                          : "Clique para marcar como possuído"
+                      }
                     >
                       <img
-                        src={`https://ddragon.leagueoflegends.com/cdn/img/champion/loading/${skin.champId}_${skin.num}.jpg`}
-                        alt={skin.name}
+                        src={`https://ddragon.leagueoflegends.com/cdn/img/champion/splash/${champ.id}_0.jpg`}
+                        alt={champ.name}
                         style={{
                           width: "100%",
-                          height: "280px",
-                          objectFit: "cover",
                           borderRadius: "8px",
+                          transition: "transform 0.3s ease",
                         }}
+                        onMouseOver={(e) =>
+                          (e.currentTarget.style.transform = "scale(1.10)")
+                        }
+                        onMouseOut={(e) =>
+                          (e.currentTarget.style.transform = "scale(1)")
+                        }
                       />
-                      <p style={{ fontSize: "0.85rem", margin: "6px 0" }}>{skin.name}</p>
+                      <p style={{ fontSize: "0.85rem", margin: "6px 0" }}>
+                        {champ.name}
+                      </p>
                     </div>
-                  ))}
-                </div>
-              </div>
-            );
-          })}
-      </div>
-    )}
+                  );
+                })}
+            </div>
+          )}
 
-  </>
-)}
+          {/* Grid de Skins */}
+          {activeTab === "skins" && (
+            <div style={{ marginTop: "20px" }}>
+              {champions
+                .sort((a, b) => a.name.localeCompare(b.name))
+                .filter((champ) => {
+                  const champSkins = skins.filter(
+                    (skin) => skin.champId === champ.id && skin.num !== 0
+                  );
+                  const visibleSkins = champSkins.filter(
+                    (skin) => !showOnlyOwned || isSkinOwned(`${skin.champId}_${skin.num}`)
+                  );
+
+                  // Aplica o filtro da lane (role) apenas se for a aba "skins"
+                  const passaFiltroDeRota =
+                    activeTab === "skins" && selectedRole
+                      ? championsByRole[selectedRole]?.includes(champ.id)
+                      : true;
+
+                  return visibleSkins.length > 0 && passaFiltroDeRota;
+                })
+                .map((champ) => {
+                  const champSkins = skins.filter(
+                    (skin) => skin.champId === champ.id && skin.num !== 0
+                  );
+                  const visibleSkins = champSkins.filter(
+                    (skin) => !showOnlyOwned || isSkinOwned(`${skin.champId}_${skin.num}`)
+                  );
+
+                  return (
+                    <div key={champ.id} style={{ marginBottom: "40px" }}>
+                      <h3
+                        style={{
+                          marginBottom: "12px",
+                          fontSize: "1.3rem",
+                          color: isDarkMode ? "#fff" : "#333",
+                          display: "inline-block",
+                          paddingBottom: "4px",
+                        }}
+                      >
+                        {champ.name}
+                      </h3>
+
+                      <div
+                        style={{
+                          display: "grid",
+                          gridTemplateColumns: "repeat(auto-fill, 160px)",
+                          justifyContent: "center",
+                          gap: "15px",
+                          marginTop: "10px",
+                        }}
+                      >
+                        {visibleSkins.map((skin) => (
+                          <div
+                            key={skin.id}
+                            onClick={() => toggleSkin(`${skin.champId}_${skin.num}`)}
+                            style={{
+                              width: "160px",
+                              textAlign: "center",
+                              borderRadius: "16px",
+                              boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
+                              backgroundColor: isDarkMode ? "#1a1a1a" : "#fff",
+                              overflow: "hidden",
+                              filter: isSkinOwned(`${skin.champId}_${skin.num}`)
+                                ? "none"
+                                : "grayscale(100%) brightness(60%)",
+                              cursor: "pointer",
+                              transition: "filter 0.3s ease",
+                            }}
+                            title={
+                              isSkinOwned(`${skin.champId}_${skin.num}`)
+                                ? "Você possui esta skin nesta conta"
+                                : "Clique para marcar como possuída"
+                            }
+                          >
+                            <img
+                              src={`https://ddragon.leagueoflegends.com/cdn/img/champion/loading/${getCorrectedChampionIdForSkin(skin.champId)}_${skin.num}.jpg`}
+                              alt={skin.name}
+                              style={{
+                                width: "100%",
+                                height: "280px",
+                                objectFit: "cover",
+                                borderRadius: "16px",
+                              }}
+                            />
+                            <p style={{ fontSize: "0.85rem", margin: "6px 0" }}>{skin.name}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })}
+
+            </div>
+          )}
+
+        </>
+      )}
 
       {/* Mostrar lista de contas filtradas se showFilteredAccounts for true */}
       <div
