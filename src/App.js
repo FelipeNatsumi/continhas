@@ -35,6 +35,7 @@ function App() {
     top: [
       "Aatrox",
       "Akali",
+      "Ambessa",
       "Camille",
       "Chogath",
       "Darius",
@@ -86,6 +87,7 @@ function App() {
     jungle: [
       "Amumu",
       "Belveth",
+      "Briar",
       "Diana",
       "Ekko",
       "Elise",
@@ -104,6 +106,7 @@ function App() {
       "Lillia",
       "MasterYi",
       "Wukong",
+      "Naafiri",
       "Nidalee",
       "Nocturne",
       "Nunu",
@@ -133,6 +136,7 @@ function App() {
       "Anivia",
       "Annie",
       "AurelionSol",
+      "Aurora",
       "Azir",
       "Cassiopeia",
       "Diana",
@@ -140,6 +144,7 @@ function App() {
       "Fizz",
       "Galio",
       "Heimerdinger",
+      "Hwei",
       "Irelia",
       "Jayce",
       "Kassadin",
@@ -148,6 +153,7 @@ function App() {
       "Lissandra",
       "Lux",
       "Malzahar",
+      "Mel",
       "Morgana",
       "Orianna",
       "Qiyana",
@@ -187,6 +193,7 @@ function App() {
       "Samira",
       "Senna",
       "Sivir",
+      "Smolder",
       "Tristana",
       "Twitch",
       "Varus",
@@ -209,6 +216,7 @@ function App() {
       "Lulu",
       "Lux",
       "Maokai",
+      "Mel",
       "Milio",
       "Morgana",
       "Nami",
@@ -581,6 +589,29 @@ function App() {
     if (!selectedAccount) return false;
     const owned = ownedSkinsByAccount[selectedAccount] || [];
     return owned.includes(skinId);
+  }
+  function getChampionsBySelectedRole() {
+    if (!selectedRole) return champions;
+    return champions.filter(c => championsByRole[selectedRole]?.includes(c.id));
+  }
+
+  function getOwnedChampionsBySelectedRole() {
+    if (!selectedAccount) return [];
+    const allOwned = ownedChampsByAccount[selectedAccount] || [];
+    const champsInRole = getChampionsBySelectedRole().map(c => c.id);
+    return allOwned.filter(id => champsInRole.includes(id));
+  }
+
+  function getSkinsBySelectedRole() {
+    const champsInRole = getChampionsBySelectedRole().map(c => c.id);
+    return skins.filter(skin => champsInRole.includes(skin.champId));
+  }
+
+  function getOwnedSkinsBySelectedRole() {
+    if (!selectedAccount) return [];
+    const allOwnedSkins = ownedSkinsByAccount[selectedAccount] || [];
+    const skinsInRole = getSkinsBySelectedRole().map(skin => `${skin.champId}_${skin.num}`);
+    return allOwnedSkins.filter(id => skinsInRole.includes(id));
   }
 
   async function removeAccount(accountToRemove) {
@@ -1613,8 +1644,8 @@ function App() {
 
             <p style={{ fontWeight: "bold", margin: "10px 0 8px" }}>
               {activeTab === "champions"
-                ? `Campeões possuídos: ${getOwnedCount()} / ${champions.length}`
-                : `Skins possuídas: ${ownedSkinsByAccount[selectedAccount]?.length || 0} / ${skins.length}`}
+                ? `Campeões possuídos: ${getOwnedChampionsBySelectedRole().length} / ${getChampionsBySelectedRole().length}`
+                : `Skins possuídas: ${getOwnedSkinsBySelectedRole().length} / ${getSkinsBySelectedRole().length}`}
             </p>
 
             {/* Filtro por possuídos */}
@@ -1867,14 +1898,16 @@ function App() {
                     (skin) => !showOnlyOwned || isSkinOwned(`${skin.champId}_${skin.num}`)
                   );
 
-                  // Aplica o filtro da lane (role) apenas se for a aba "skins"
                   const passaFiltroDeRota =
                     activeTab === "skins" && selectedRole
                       ? championsByRole[selectedRole]?.includes(champ.id)
                       : true;
 
-                  return visibleSkins.length > 0 && passaFiltroDeRota;
+                  const isChampOwned = isOwned(champ.id); // <-- nova regra
+
+                  return visibleSkins.length > 0 && passaFiltroDeRota && isChampOwned;
                 })
+
                 .map((champ) => {
                   const champSkins = skins.filter(
                     (skin) => skin.champId === champ.id && skin.num !== 0
@@ -1895,14 +1928,23 @@ function App() {
                         }}
                       >
                         {champ.name}
+                        <span
+                          style={{
+                            fontSize: "0.8rem",
+                            color: isDarkMode ? "#aaa" : "#666",
+                            marginLeft: "12px",
+                          }}
+                        >
+                          ({champSkins.filter(skin => isSkinOwned(`${skin.champId}_${skin.num}`)).length}/{champSkins.length})
+                        </span>
                       </h3>
 
                       <div
                         style={{
                           display: "grid",
-                          gridTemplateColumns: "repeat(auto-fill, 160px)",
+                          gridTemplateColumns: "repeat(auto-fill, 110px)",
                           justifyContent: "center",
-                          gap: "15px",
+                          gap: "10px",
                           marginTop: "10px",
                         }}
                       >
@@ -1911,10 +1953,10 @@ function App() {
                             key={skin.id}
                             onClick={() => toggleSkin(`${skin.champId}_${skin.num}`)}
                             style={{
-                              width: "160px",
+                              width: "110px",
                               textAlign: "center",
-                              borderRadius: "16px",
-                              boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
+                              borderRadius: "12px",
+                              boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
                               backgroundColor: isDarkMode ? "#1a1a1a" : "#fff",
                               overflow: "hidden",
                               filter: isSkinOwned(`${skin.champId}_${skin.num}`)
@@ -1934,15 +1976,16 @@ function App() {
                               alt={skin.name}
                               style={{
                                 width: "100%",
-                                height: "280px",
+                                height: "180px",
                                 objectFit: "cover",
-                                borderRadius: "16px",
+                                borderRadius: "12px",
                               }}
                             />
-                            <p style={{ fontSize: "0.85rem", margin: "6px 0" }}>{skin.name}</p>
+                            <p style={{ fontSize: "0.75rem", margin: "6px 0" }}>{skin.name}</p>
                           </div>
                         ))}
                       </div>
+
                     </div>
                   );
                 })}
