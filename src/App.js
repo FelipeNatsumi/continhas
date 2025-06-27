@@ -270,7 +270,6 @@ function App() {
   const playChampionVoice = (championName) => {
     const champ = championVoiceMap[championName];
     if (!champ) return;
-
     const audio = new Audio(champ.audio);
     audio.volume = 0.1;
     audio.play().catch((err) =>
@@ -321,7 +320,6 @@ function App() {
         const versions = await versionRes.json();
         const latestVersion = versions[0];
         setDdragonVersion(latestVersion);
-
         const champsRes = await fetch(
           `https://ddragon.leagueoflegends.com/cdn/${latestVersion}/data/en_US/champion.json`
         );
@@ -338,22 +336,17 @@ function App() {
 
     const fetchSkins = async (championsList, version) => {
       const allSkins = [];
-
       for (const champ of championsList) {
         try {
           const championIdForUrl = champ.id
-
           const res = await fetch(`https://ddragon.leagueoflegends.com/cdn/${version}/data/en_US/champion/${championIdForUrl}.json`);
           const data = await res.json();
-
-          // Usa champ.id original (sempre será a chave correta dentro de data.data)
           const skinsList = data.data[champ.id].skins.map(skin => ({
             id: skin.id,
             champId: champ.id,
             name: skin.name === "default" ? champ.name : skin.name,
             num: skin.num,
           }));
-
           allSkins.push(...skinsList);
         } catch (error) {
           console.error(`Erro ao carregar skins do campeão ${champ.id}:`, error);
@@ -375,7 +368,6 @@ function App() {
         const eloData = {};
         const penaltiesData = {};
         const skinsData = {};
-
         snapshot.forEach((docSnap) => {
           const data = docSnap.data();
           accountsList.push(docSnap.id);
@@ -403,7 +395,6 @@ function App() {
           };
           penaltiesData[docSnap.id] = data.penalty || "";
         });
-
         setAccounts(accountsList);
         setOwnedChampsByAccount(champsData);
         setOwnedSkinsByAccount(skinsData);
@@ -415,7 +406,6 @@ function App() {
         console.error("Erro ao buscar contas do Firestore:", error);
       }
     }
-
     fetchAccountsFromFirestore();
   }, []);
 
@@ -425,7 +415,6 @@ function App() {
       try {
         for (const account of accounts) {
           const owned = ownedChampsByAccount[account] || [];
-
           await setDoc(
             doc(db, "accounts", account),
             {
@@ -456,7 +445,6 @@ function App() {
     const trimmed = newAccountName.trim();
     if (!trimmed) return alert("Digite o nome da conta");
     if (accounts.includes(trimmed)) return alert("Conta já existe");
-
     const newAccounts = [...accounts, trimmed];
     setAccounts(newAccounts);
     setOwnedChampsByAccount({ ...ownedChampsByAccount, [trimmed]: [] });
@@ -480,16 +468,12 @@ function App() {
       if (!gameName || !tagLine) {
         return alert("Formato inválido. Use nome#tag.");
       }
-
       const response = await fetch(`/api/getRankedData?gameName=${encodeURIComponent(gameName)}&tagLine=${encodeURIComponent(tagLine)}`);
-
       const text = await response.text(); // Lê a resposta como texto bruto (JSON ou erro HTML)
-
       try {
         const { rankedData } = JSON.parse(text); // Agora tenta converter em JSON
         const soloDuo = rankedData.find(entry => entry.queueType === "RANKED_SOLO_5x5");
         const flex = rankedData.find(entry => entry.queueType === "RANKED_FLEX_SR");
-
         setEloDataByAccount(prev => ({
           ...prev,
           [selectedAccount]: {
@@ -511,7 +495,6 @@ function App() {
             } : {},
           }
         }));
-
         alert("Elo atualizado com sucesso!");
       } catch (jsonErr) {
         console.error("Erro ao converter resposta em JSON:", text);
@@ -528,12 +511,10 @@ function App() {
       alert("Selecione uma conta primeiro");
       return;
     }
-
     const owned = ownedChampsByAccount[selectedAccount] || [];
     const newOwned = owned.includes(champId)
       ? owned.filter((id) => id !== champId)
       : [...owned, champId];
-
     const updated = {
       ...ownedChampsByAccount,
       [selectedAccount]: newOwned,
