@@ -912,9 +912,40 @@ function App() {
           <h2 style={{ marginTop: 0 }}>Filtro</h2>
 
           <div style={{ marginTop: "20px" }}>
-            <label style={{ fontWeight: "bold", display: "block", marginBottom: "6px" }}>
-              By Rank:
-            </label>
+            <div style={{ marginBottom: "6px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <span style={{ fontWeight: "bold" }}>By Rank:</span>
+
+              <div style={{ display: "flex", gap: "6px" }}>
+                <button
+                  onClick={() => setSelectedQueue("Solo/Duo")}
+                  style={{
+                    padding: "4px 10px",
+                    fontSize: "12px",
+                    borderRadius: "6px",
+                    border: "1px solid #999",
+                    backgroundColor: selectedQueue === "Solo/Duo" ? "#9370DB" : (isDarkMode ? "#1e1e1e" : "#f0f0f0"),
+                    color: selectedQueue === "Solo/Duo" ? "#fff" : (isDarkMode ? "#fff" : "#000"),
+                    cursor: "pointer",
+                  }}
+                >
+                  Solo/Duo
+                </button>
+                <button
+                  onClick={() => setSelectedQueue("Flex")}
+                  style={{
+                    padding: "4px 10px",
+                    fontSize: "12px",
+                    borderRadius: "6px",
+                    border: "1px solid #999",
+                    backgroundColor: selectedQueue === "Flex" ? "#9370DB" : (isDarkMode ? "#1e1e1e" : "#f0f0f0"),
+                    color: selectedQueue === "Flex" ? "#fff" : (isDarkMode ? "#fff" : "#000"),
+                    cursor: "pointer",
+                  }}
+                >
+                  Flex
+                </button>
+              </div>
+            </div>
             <Select
               options={rankOptions}
               value={rankOptions.find(opt => opt.value === selectedTierFilter)}
@@ -1130,17 +1161,39 @@ function App() {
           {(selectedTierFilter || selectedChampionsFilter.length > 0) && (
             <div style={{ textAlign: "center", marginTop: "20px" }}>
               <button
-                style={{ ...buttonstyle, backgroundColor: "#1976d2", height: "32px", marginTop: "10px" }}
+                style={{ ...buttonstyle, backgroundColor: "#9370DB", height: "32px", marginTop: "10px" }}
                 onClick={() => {
+                  const tierOrder = ["iron", "bronze", "silver", "gold", "platinum", "emerald", "diamond", "master", "grandmaster", "challenger", "unranked"];
+                  const divisionOrder = ["IV", "III", "II", "I"];
                   const tier = selectedTierFilter;
                   const champs = selectedChampionsFilter;
+                  const queueKey = selectedQueue === "Flex" ? "flex" : "soloDuo";
+
                   const matchingAccounts = accounts.filter((acc) => {
                     const owned = ownedChampsByAccount[acc] || [];
-                    const ranked = eloDataByAccount[acc]?.soloDuo?.tier;
+                    const elo = eloDataByAccount[acc]?.[queueKey];
                     const hasAllChampions = champs.every((c) => owned.includes(c));
-                    const tierMatches = !tier || ranked === tier;
+                    const tierMatches = !tier || elo?.tier === tier;
                     return hasAllChampions && tierMatches;
                   });
+
+                  matchingAccounts.sort((a, b) => {
+                    const eloA = eloDataByAccount[a]?.[queueKey] || {};
+                    const eloB = eloDataByAccount[b]?.[queueKey] || {};
+
+                    const tierIndexA = tierOrder.indexOf(eloA.tier || "unranked");
+                    const tierIndexB = tierOrder.indexOf(eloB.tier || "unranked");
+
+                    if (tierIndexA !== tierIndexB) {
+                      return tierIndexA - tierIndexB;
+                    }
+
+                    const divisionIndexA = divisionOrder.indexOf(eloA.division || "IV");
+                    const divisionIndexB = divisionOrder.indexOf(eloB.division || "IV");
+
+                    return divisionIndexA - divisionIndexB;
+                  });
+
                   setFilteredAccounts(matchingAccounts);
                   setShowFilteredAccounts(true);
                 }}
