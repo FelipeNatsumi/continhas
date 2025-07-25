@@ -1307,51 +1307,65 @@ function App() {
                             />
                         )}
                     </div>
+{(selectedTierFilter || selectedChampionsFilter.length > 0 || selectedSkinsFilter.length > 0) && (
+  <div style={{ textAlign: "center", marginTop: "20px" }}>
+    <button
+      style={{ ...buttonstyle, backgroundColor: "#9370DB", height: "32px", marginTop: "10px" }}
+      onClick={() => {
+        const queueKey = selectedQueue === "Flex" ? "flex" : "soloDuo";
 
-                    {(selectedTierFilter || selectedChampionsFilter.length > 0) && (
-                        <div style={{ textAlign: "center", marginTop: "20px" }}>
-                            <button
-                                style={{ ...buttonstyle, backgroundColor: "#9370DB", height: "32px", marginTop: "10px" }}
-                                onClick={() => {
-                                    const tierOrder = ["iron", "bronze", "silver", "gold", "platinum", "emerald", "diamond", "master", "grandmaster", "challenger", "unranked"];
-                                    const divisionOrder = ["IV", "III", "II", "I"];
-                                    const tier = selectedTierFilter;
-                                    const champs = selectedChampionsFilter;
-                                    const queueKey = selectedQueue === "Flex" ? "flex" : "soloDuo";
+        let matchingAccounts = [...accounts];
 
-                                    const matchingAccounts = accounts.filter((acc) => {
-                                        const owned = ownedChampsByAccount[acc] || [];
-                                        const elo = eloDataByAccount[acc]?.[queueKey];
-                                        const hasAllChampions = champs.every((c) => owned.includes(c));
-                                        const tierMatches = !tier || elo?.tier === tier;
-                                        return hasAllChampions && tierMatches;
-                                    });
+        if (filterMode === "champion" && selectedChampionsFilter.length > 0) {
+          matchingAccounts = matchingAccounts.filter((acc) => {
+            const owned = ownedChampsByAccount[acc] || [];
+            const hasAllChampions = selectedChampionsFilter.every((c) => owned.includes(c));
+            return hasAllChampions;
+          });
+        }
 
-                                    matchingAccounts.sort((a, b) => {
-                                        const eloA = eloDataByAccount[a]?.[queueKey] || {};
-                                        const eloB = eloDataByAccount[b]?.[queueKey] || {};
+        if (filterMode === "skin" && selectedSkinsFilter.length > 0) {
+          matchingAccounts = matchingAccounts.filter((acc) => {
+            const ownedSkins = ownedSkinsByAccount[acc] || [];
+            const hasAllSkins = selectedSkinsFilter.every((s) => ownedSkins.includes(s));
+            return hasAllSkins;
+          });
+        }
 
-                                        const tierIndexA = tierOrder.indexOf(eloA.tier || "unranked");
-                                        const tierIndexB = tierOrder.indexOf(eloB.tier || "unranked");
+        if (selectedTierFilter) {
+          matchingAccounts = matchingAccounts.filter((acc) => {
+            const elo = eloDataByAccount[acc]?.[queueKey];
+            return elo?.tier === selectedTierFilter;
+          });
+        }
 
-                                        if (tierIndexA !== tierIndexB) {
-                                            return tierIndexA - tierIndexB;
-                                        }
+        matchingAccounts.sort((a, b) => {
+          const eloA = eloDataByAccount[a]?.[queueKey] || {};
+          const eloB = eloDataByAccount[b]?.[queueKey] || {};
 
-                                        const divisionIndexA = divisionOrder.indexOf(eloA.division || "IV");
-                                        const divisionIndexB = divisionOrder.indexOf(eloB.division || "IV");
+          const tierOrder = ["iron", "bronze", "silver", "gold", "platinum", "emerald", "diamond", "master", "grandmaster", "challenger", "unranked"];
+          const divisionOrder = ["IV", "III", "II", "I"];
 
-                                        return divisionIndexA - divisionIndexB;
-                                    });
+          const tierIndexA = tierOrder.indexOf(eloA.tier || "unranked");
+          const tierIndexB = tierOrder.indexOf(eloB.tier || "unranked");
 
-                                    setFilteredAccounts(matchingAccounts);
-                                    setShowFilteredAccounts(true);
-                                }}
-                            >
-                                Search
-                            </button>
-                        </div>
-                    )}
+          if (tierIndexA !== tierIndexB) return tierIndexA - tierIndexB;
+
+          const divisionIndexA = divisionOrder.indexOf(eloA.division || "IV");
+          const divisionIndexB = divisionOrder.indexOf(eloB.division || "IV");
+
+          return divisionIndexA - divisionIndexB;
+        });
+
+        setFilteredAccounts(matchingAccounts);
+        setShowFilteredAccounts(true);
+      }}
+    >
+      Search
+    </button>
+  </div>
+)}
+
                 </div>
 
                 {/* Box 3 - Detalhes da conta */}
