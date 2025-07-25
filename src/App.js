@@ -246,6 +246,7 @@ function App() {
     const [selectedTierFilter, setSelectedTierFilter] = useState("");
     const [filteredAccounts, setFilteredAccounts] = useState([]);
     const [showFilteredAccounts, setShowFilteredAccounts] = useState(false);
+    const [filterMode, setFilterMode] = useState("champion"); // ou "skin"
     const rankOptions = [
         { value: "", label: "Choose a rank" },
         ...["unranked", "iron", "bronze", "silver", "gold", "platinum", "emerald", "diamond", "master", "grandmaster", "challenger"].map((tier) => ({
@@ -278,7 +279,6 @@ function App() {
     };
     const [penaltiesByAccount, setPenaltiesByAccount] = useState({});
     const [showPenaltyTooltip, setShowPenaltyTooltip] = useState(false);
-    const [filterMode, setFilterMode] = useState("champion"); // ou "skin"
     const [activeTab, setActiveTab] = useState("champions"); // ou "skins"
     const [skins, setSkins] = useState([]);
     const getCorrectedChampionIdForSkin = (champId) => {
@@ -915,6 +915,7 @@ function App() {
                     <div style={{ marginTop: "20px" }}>
                         <div style={{ marginBottom: "6px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                             <span style={{ fontWeight: "bold" }}>By Rank:</span>
+
                             <div style={{ display: "flex", gap: "6px" }}>
                                 <button
                                     onClick={() => setSelectedQueue("Solo/Duo")}
@@ -954,32 +955,108 @@ function App() {
                                 setSelectedAccount("");
                                 setShowFilteredAccounts(false);
                             }}
-                            styles={{ ... }} // pode manter os estilos que você já tinha aqui
+                            styles={{
+                                control: (base) => ({
+                                    ...base,
+                                    backgroundColor: isDarkMode ? "#1e1e1e" : "#fff",
+                                    color: isDarkMode ? "#fff" : "#000",
+                                    border: "1px solid #ccc",
+                                    borderRadius: "5px",
+                                    minHeight: "30px",
+                                    height: "32px",
+                                    fontSize: "14px",
+                                    padding: "0 4px",
+                                }),
+                                valueContainer: (base) => ({
+                                    ...base,
+                                    padding: "0 4px",
+                                    height: "30px",
+                                    fontSize: "14px",
+                                }),
+                                input: (base) => ({
+                                    ...base,
+                                    margin: 0,
+                                    padding: 0,
+                                    height: "100%",
+                                    color: isDarkMode ? "#fff" : "#000",
+                                }),
+                                dropdownIndicator: (base) => ({
+                                    ...base,
+                                    padding: "2px", // reduz a área da setinha
+                                }),
+                                indicatorsContainer: (base) => ({
+                                    ...base,
+                                    padding: "0px",
+                                }),
+                                singleValue: (base) => ({
+                                    ...base,
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: "6px",
+                                    color: isDarkMode ? "#aaa" : "#888",
+                                    fontSize: "14px",
+                                }),
+                                option: (base, state) => ({
+                                    ...base,
+                                    backgroundColor: state.isFocused
+                                        ? isDarkMode ? "#333" : "#eee"
+                                        : "transparent",
+                                    color: isDarkMode ? "#fff" : "#000",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: "8px",
+                                    cursor: "pointer",
+                                    padding: "6px 8px", // controla espaço interno de cada opção
+                                }),
+                                menu: (base) => ({
+                                    ...base,
+                                    backgroundColor: isDarkMode ? "#1e1e1e" : "#fff",
+                                    color: isDarkMode ? "#fff" : "#000",
+                                }),
+                                placeholder: (base) => ({
+                                    ...base,
+                                    color: isDarkMode ? "#aaa" : "#888",
+                                }),
+                            }}
                         />
                     </div>
 
                     <div style={{ marginTop: "14px" }}>
-                        <div style={{ fontWeight: "bold", display: "flex", justifyContent: "space-between", marginBottom: "6px" }}>
-                            <span>{filterMode === "champion" ? "By Champion:" : "By Skin:"}</span>
-                            <button
-                                onClick={() => {
-                                    setFilterMode(prev => prev === "champion" ? "skin" : "champion");
-                                    setSelectedChampionsFilter([]);
-                                }}
-                                style={{
-                                    fontSize: "12px",
-                                    backgroundColor: "#9370DB",
-                                    color: "white",
-                                    border: "none",
-                                    padding: "4px 8px",
-                                    borderRadius: "6px",
-                                    cursor: "pointer",
-                                }}
-                            >
-                                {filterMode === "champion" ? "By Skin" : "By Champion"}
-                            </button>
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "6px" }}>
+                            <span style={{ fontWeight: "bold" }}>Filtro:</span>
+                            <div style={{ display: "flex", gap: "6px" }}>
+                                <button
+                                    onClick={() => setFilterMode("champion")}
+                                    style={{
+                                        padding: "4px 10px",
+                                        fontSize: "12px",
+                                        borderRadius: "6px",
+                                        border: "1px solid #999",
+                                        backgroundColor: filterMode === "champion" ? "#FF69B4" : (isDarkMode ? "#1e1e1e" : "#f0f0f0"),
+                                        color: filterMode === "champion" ? "#fff" : (isDarkMode ? "#fff" : "#000"),
+                                        cursor: "pointer",
+                                    }}
+                                >
+                                    By Champion
+                                </button>
+                                <button
+                                    onClick={() => setFilterMode("skin")}
+                                    style={{
+                                        padding: "4px 10px",
+                                        fontSize: "12px",
+                                        borderRadius: "6px",
+                                        border: "1px solid #999",
+                                        backgroundColor: filterMode === "skin" ? "#FF69B4" : (isDarkMode ? "#1e1e1e" : "#f0f0f0"),
+                                        color: filterMode === "skin" ? "#fff" : (isDarkMode ? "#fff" : "#000"),
+                                        cursor: "pointer",
+                                    }}
+                                >
+                                    By Skin
+                                </button>
+                            </div>
                         </div>
 
+                        {/* Aqui mostra o filtro de campeão ou uma mensagem se estiver no modo skin */}
                         {filterMode === "champion" ? (
                             <Select
                                 isMulti
@@ -1006,7 +1083,9 @@ function App() {
                                             <span>{champ.id === "MonkeyKing" ? "Wukong" : champ.name}</span>
                                         </div>
                                     ),
-                                    searchTerms: [champ.id === "MonkeyKing" ? "wukong" : champ.id.toLowerCase()],
+                                    searchTerms: [
+                                        champ.id === "MonkeyKing" ? "wukong" : champ.id.toLowerCase()
+                                    ]
                                 }))}
                                 value={champions
                                     .filter(c => selectedChampionsFilter.includes(c.id))
@@ -1024,39 +1103,26 @@ function App() {
                                                 }}
                                             />
                                         )
-                                    }))
-                                }
+                                    }))}
                                 onChange={(selectedOptions) => {
                                     const selected = selectedOptions || [];
                                     const lastSelected = selected[selected.length - 1];
-                                    if (lastSelected) playChampionVoice(lastSelected.value);
+
+                                    if (lastSelected) {
+                                        playChampionVoice(lastSelected.value);
+                                    }
+
                                     setSelectedChampionsFilter(selected.map(opt => opt.value));
                                     setSelectedAccount("");
                                     setShowFilteredAccounts(false);
                                 }}
                                 placeholder="Champions..."
-                                styles={{ ... }} // copie o mesmo estilo que você usava no seletor de champion
+                                styles={/* seus estilos do Select aqui */}
                             />
                         ) : (
-                            <Select
-                                isMulti
-                                isSearchable={true}
-                                placeholder="Skins..."
-                                options={skins
-                                    .filter(skin => skin.num !== 0)
-                                    .map(skin => ({
-                                        value: `${skin.champId}_${skin.num}`,
-                                        label: skin.name,
-                                    }))
-                                }
-                                onChange={(selectedOptions) => {
-                                    const selected = selectedOptions || [];
-                                    setSelectedChampionsFilter(selected.map(opt => opt.value));
-                                    setSelectedAccount("");
-                                    setShowFilteredAccounts(false);
-                                }}
-                                styles={{ ... }} // pode reutilizar os mesmos estilos do outro Select
-                            />
+                            <p style={{ fontStyle: "italic", fontSize: "13px", color: isDarkMode ? "#aaa" : "#555" }}>
+                                (Filtro por skin ainda não implementado)
+                            </p>
                         )}
                     </div>
 
@@ -1072,26 +1138,27 @@ function App() {
                                     const queueKey = selectedQueue === "Flex" ? "flex" : "soloDuo";
 
                                     const matchingAccounts = accounts.filter((acc) => {
-                                        const ownedChamps = ownedChampsByAccount[acc] || [];
-                                        const ownedSkins = ownedSkinsByAccount[acc] || [];
+                                        const owned = ownedChampsByAccount[acc] || [];
                                         const elo = eloDataByAccount[acc]?.[queueKey];
-
-                                        const hasAll = filterMode === "champion"
-                                            ? champs.every((c) => ownedChamps.includes(c))
-                                            : champs.every((s) => ownedSkins.includes(s));
-
+                                        const hasAllChampions = champs.every((c) => owned.includes(c));
                                         const tierMatches = !tier || elo?.tier === tier;
-                                        return hasAll && tierMatches;
+                                        return hasAllChampions && tierMatches;
                                     });
 
                                     matchingAccounts.sort((a, b) => {
                                         const eloA = eloDataByAccount[a]?.[queueKey] || {};
                                         const eloB = eloDataByAccount[b]?.[queueKey] || {};
+
                                         const tierIndexA = tierOrder.indexOf(eloA.tier || "unranked");
                                         const tierIndexB = tierOrder.indexOf(eloB.tier || "unranked");
-                                        if (tierIndexA !== tierIndexB) return tierIndexA - tierIndexB;
+
+                                        if (tierIndexA !== tierIndexB) {
+                                            return tierIndexA - tierIndexB;
+                                        }
+
                                         const divisionIndexA = divisionOrder.indexOf(eloA.division || "IV");
                                         const divisionIndexB = divisionOrder.indexOf(eloB.division || "IV");
+
                                         return divisionIndexA - divisionIndexB;
                                     });
 
@@ -1104,7 +1171,6 @@ function App() {
                         </div>
                     )}
                 </div>
-
 
                 {/* Box 3 - Detalhes da conta */}
                 {selectedAccount && (
@@ -2036,6 +2102,7 @@ function App() {
                 })}
             </div>
 
+
             {showConfirmRemove && (
                 <div style={{
                     position: "fixed",
@@ -2108,6 +2175,7 @@ function App() {
                     </div>
                 </div>
             )}
+
         </div>
     );
 }
