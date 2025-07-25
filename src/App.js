@@ -1104,6 +1104,24 @@ function App() {
                                             />
                                         )
                                     }))}
+                                value={skins
+                                    .filter(skin => selectedSkinsFilter.includes(`${skin.champId}_${skin.num}`))
+                                    .map(skin => ({
+                                        value: `${skin.champId}_${skin.num}`,
+                                        label: (
+                                            <img
+                                                src={`https://ddragon.leagueoflegends.com/cdn/img/champion/loading/${getCorrectedChampionIdForSkin(skin.champId)}_${skin.num}.jpg`}
+                                                alt={skin.name}
+                                                style={{
+                                                    width: "20px",
+                                                    height: "20px",
+                                                    objectFit: "cover",
+                                                    borderRadius: "50%",
+                                                }}
+                                            />
+                                        )
+                                    }))}
+
                                 onChange={(selectedOptions) => {
                                     const selected = selectedOptions || [];
                                     const lastSelected = selected[selected.length - 1];
