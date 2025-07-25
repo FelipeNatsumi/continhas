@@ -1210,11 +1210,10 @@ function App() {
                                                         src={`https://ddragon.leagueoflegends.com/cdn/img/champion/loading/${getCorrectedChampionIdForSkin(skin.champId)}_${skin.num}.jpg`}
                                                         alt={skin.name}
                                                         style={{
-                                                            width: "36px",
-                                                            height: "36px",
+                                                            width: "20px",
+                                                            height: "20px",
                                                             objectFit: "cover",
                                                             borderRadius: "50%",
-                                                            border: "1px solid #999",
                                                         }}
                                                     />
                                                     <span>{skin.name}</span>
