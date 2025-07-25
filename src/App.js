@@ -1211,9 +1211,10 @@ function App() {
                                                         alt={skin.name}
                                                         style={{
                                                             width: "36px",
-                                                            height: "64px",
+                                                            height: "36px",
                                                             objectFit: "cover",
-                                                            borderRadius: "6px",
+                                                            borderRadius: "50%",
+                                                            border: "1px solid #999",
                                                         }}
                                                     />
                                                     <span>{skin.name}</span>
@@ -1307,64 +1308,64 @@ function App() {
                             />
                         )}
                     </div>
-{(selectedTierFilter || selectedChampionsFilter.length > 0 || selectedSkinsFilter.length > 0) && (
-  <div style={{ textAlign: "center", marginTop: "20px" }}>
-    <button
-      style={{ ...buttonstyle, backgroundColor: "#9370DB", height: "32px", marginTop: "10px" }}
-      onClick={() => {
-        const queueKey = selectedQueue === "Flex" ? "flex" : "soloDuo";
+                    {(selectedTierFilter || selectedChampionsFilter.length > 0 || selectedSkinsFilter.length > 0) && (
+                        <div style={{ textAlign: "center", marginTop: "20px" }}>
+                            <button
+                                style={{ ...buttonstyle, backgroundColor: "#9370DB", height: "32px", marginTop: "10px" }}
+                                onClick={() => {
+                                    const queueKey = selectedQueue === "Flex" ? "flex" : "soloDuo";
 
-        let matchingAccounts = [...accounts];
+                                    let matchingAccounts = [...accounts];
 
-        if (filterMode === "champion" && selectedChampionsFilter.length > 0) {
-          matchingAccounts = matchingAccounts.filter((acc) => {
-            const owned = ownedChampsByAccount[acc] || [];
-            const hasAllChampions = selectedChampionsFilter.every((c) => owned.includes(c));
-            return hasAllChampions;
-          });
-        }
+                                    if (filterMode === "champion" && selectedChampionsFilter.length > 0) {
+                                        matchingAccounts = matchingAccounts.filter((acc) => {
+                                            const owned = ownedChampsByAccount[acc] || [];
+                                            const hasAllChampions = selectedChampionsFilter.every((c) => owned.includes(c));
+                                            return hasAllChampions;
+                                        });
+                                    }
 
-        if (filterMode === "skin" && selectedSkinsFilter.length > 0) {
-          matchingAccounts = matchingAccounts.filter((acc) => {
-            const ownedSkins = ownedSkinsByAccount[acc] || [];
-            const hasAllSkins = selectedSkinsFilter.every((s) => ownedSkins.includes(s));
-            return hasAllSkins;
-          });
-        }
+                                    if (filterMode === "skin" && selectedSkinsFilter.length > 0) {
+                                        matchingAccounts = matchingAccounts.filter((acc) => {
+                                            const ownedSkins = ownedSkinsByAccount[acc] || [];
+                                            const hasAllSkins = selectedSkinsFilter.every((s) => ownedSkins.includes(s));
+                                            return hasAllSkins;
+                                        });
+                                    }
 
-        if (selectedTierFilter) {
-          matchingAccounts = matchingAccounts.filter((acc) => {
-            const elo = eloDataByAccount[acc]?.[queueKey];
-            return elo?.tier === selectedTierFilter;
-          });
-        }
+                                    if (selectedTierFilter) {
+                                        matchingAccounts = matchingAccounts.filter((acc) => {
+                                            const elo = eloDataByAccount[acc]?.[queueKey];
+                                            return elo?.tier === selectedTierFilter;
+                                        });
+                                    }
 
-        matchingAccounts.sort((a, b) => {
-          const eloA = eloDataByAccount[a]?.[queueKey] || {};
-          const eloB = eloDataByAccount[b]?.[queueKey] || {};
+                                    matchingAccounts.sort((a, b) => {
+                                        const eloA = eloDataByAccount[a]?.[queueKey] || {};
+                                        const eloB = eloDataByAccount[b]?.[queueKey] || {};
 
-          const tierOrder = ["iron", "bronze", "silver", "gold", "platinum", "emerald", "diamond", "master", "grandmaster", "challenger", "unranked"];
-          const divisionOrder = ["IV", "III", "II", "I"];
+                                        const tierOrder = ["iron", "bronze", "silver", "gold", "platinum", "emerald", "diamond", "master", "grandmaster", "challenger", "unranked"];
+                                        const divisionOrder = ["IV", "III", "II", "I"];
 
-          const tierIndexA = tierOrder.indexOf(eloA.tier || "unranked");
-          const tierIndexB = tierOrder.indexOf(eloB.tier || "unranked");
+                                        const tierIndexA = tierOrder.indexOf(eloA.tier || "unranked");
+                                        const tierIndexB = tierOrder.indexOf(eloB.tier || "unranked");
 
-          if (tierIndexA !== tierIndexB) return tierIndexA - tierIndexB;
+                                        if (tierIndexA !== tierIndexB) return tierIndexA - tierIndexB;
 
-          const divisionIndexA = divisionOrder.indexOf(eloA.division || "IV");
-          const divisionIndexB = divisionOrder.indexOf(eloB.division || "IV");
+                                        const divisionIndexA = divisionOrder.indexOf(eloA.division || "IV");
+                                        const divisionIndexB = divisionOrder.indexOf(eloB.division || "IV");
 
-          return divisionIndexA - divisionIndexB;
-        });
+                                        return divisionIndexA - divisionIndexB;
+                                    });
 
-        setFilteredAccounts(matchingAccounts);
-        setShowFilteredAccounts(true);
-      }}
-    >
-      Search
-    </button>
-  </div>
-)}
+                                    setFilteredAccounts(matchingAccounts);
+                                    setShowFilteredAccounts(true);
+                                }}
+                            >
+                                Search
+                            </button>
+                        </div>
+                    )}
 
                 </div>
 
