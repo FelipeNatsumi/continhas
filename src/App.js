@@ -1117,7 +1117,78 @@ function App() {
                                     setShowFilteredAccounts(false);
                                 }}
                                 placeholder="Champions..."
-                                styles={/* seus estilos do Select aqui */}
+                                styles={{
+                control: (base) => ({
+                  ...base,
+                  backgroundColor: isDarkMode ? "#1e1e1e" : "#fff",
+                  color: isDarkMode ? "#fff" : "#000",
+                  border: "1px solid #ccc",
+                  borderRadius: "5px",
+                  height: "32px",
+                  minHeight: "32px",
+                  boxSizing: "border-box",
+                  padding: "0 4px",
+                  overflow: "hidden",
+                }),
+                valueContainer: (base) => ({
+                  ...base,
+                  height: "32px",
+                  padding: "0 4px",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "4px",
+                }),
+                multiValue: (base) => ({
+                  ...base,
+                  backgroundColor: "transparent",
+                  padding: "0",
+                  margin: "0",
+                }),
+                multiValueLabel: () => ({
+                  display: "flex",
+                  alignItems: "center",
+                }),
+                multiValueRemove: (base) => ({
+                  ...base,
+                  display: "none",
+                }),
+                input: (base) => ({
+                  ...base,
+                  margin: 0,
+                  padding: 0,
+                  height: "20px",
+                  color: isDarkMode ? "#fff" : "#000",
+                }),
+                placeholder: (base) => ({
+                  ...base,
+                  fontSize: "14px",
+                  color: isDarkMode ? "#aaa" : "#888",
+                }),
+                indicatorsContainer: (base) => ({
+                  ...base,
+                  height: "32px",
+                }),
+                dropdownIndicator: (base) => ({
+                  ...base,
+                  padding: "2px",
+                }),
+                menu: (base) => ({
+                  ...base,
+                  backgroundColor: isDarkMode ? "#1e1e1e" : "#fff",
+                }),
+                option: (base, state) => ({
+                  ...base,
+                  backgroundColor: state.isFocused
+                    ? isDarkMode ? "#333" : "#eee"
+                    : "transparent",
+                  color: isDarkMode ? "#fff" : "#000",
+                  padding: "6px 8px",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "8px",
+                }),
+              }}
+
                             />
                         ) : (
                             <p style={{ fontStyle: "italic", fontSize: "13px", color: isDarkMode ? "#aaa" : "#555" }}>
