@@ -1104,24 +1104,6 @@ function App() {
                                             />
                                         )
                                     }))}
-                                value={skins
-                                    .filter(skin => selectedSkinsFilter.includes(`${skin.champId}_${skin.num}`))
-                                    .map(skin => ({
-                                        value: `${skin.champId}_${skin.num}`,
-                                        label: (
-                                            <img
-                                                src={`https://ddragon.leagueoflegends.com/cdn/img/champion/loading/${getCorrectedChampionIdForSkin(skin.champId)}_${skin.num}.jpg`}
-                                                alt={skin.name}
-                                                style={{
-                                                    width: "20px",
-                                                    height: "20px",
-                                                    objectFit: "cover",
-                                                    borderRadius: "50%",
-                                                }}
-                                            />
-                                        )
-                                    }))}
-
                                 onChange={(selectedOptions) => {
                                     const selected = selectedOptions || [];
                                     const lastSelected = selected[selected.length - 1];
@@ -1243,6 +1225,23 @@ function App() {
                                             ]
                                         };
                                     })}
+                                value={skins
+                                    .filter(skin => selectedSkinsFilter.includes(`${skin.champId}_${skin.num}`))
+                                    .map(skin => ({
+                                        value: `${skin.champId}_${skin.num}`,
+                                        label: (
+                                            <img
+                                                src={`https://ddragon.leagueoflegends.com/cdn/img/champion/loading/${getCorrectedChampionIdForSkin(skin.champId)}_${skin.num}.jpg`}
+                                                alt={skin.name}
+                                                style={{
+                                                    width: "20px",
+                                                    height: "20px",
+                                                    objectFit: "cover",
+                                                    borderRadius: "50%",
+                                                }}
+                                            />
+                                        )
+                                    }))}
                                 onChange={(selectedOptions) => {
                                     const selected = selectedOptions || [];
                                     const skinIds = selected.map(opt => opt.value);
@@ -1271,19 +1270,19 @@ function App() {
                                         display: "flex",
                                         alignItems: "center",
                                         gap: "4px",
+                                        flexWrap: "wrap",
                                     }),
-                                    multiValue: (base) => ({
-                                        ...base,
+                                    multiValue: () => ({
+                                        margin: 0,
+                                        padding: 0,
                                         backgroundColor: "transparent",
-                                        padding: "0",
-                                        margin: "0",
                                     }),
                                     multiValueLabel: () => ({
+                                        padding: 0,
                                         display: "flex",
                                         alignItems: "center",
                                     }),
-                                    multiValueRemove: (base) => ({
-                                        ...base,
+                                    multiValueRemove: () => ({
                                         display: "none",
                                     }),
                                     input: (base) => ({
@@ -1323,6 +1322,7 @@ function App() {
                                     }),
                                 }}
                             />
+
                         )}
                     </div>
                     {(selectedTierFilter || selectedChampionsFilter.length > 0 || selectedSkinsFilter.length > 0) && (
