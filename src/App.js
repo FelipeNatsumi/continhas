@@ -247,6 +247,7 @@ function App() {
     const [filteredAccounts, setFilteredAccounts] = useState([]);
     const [showFilteredAccounts, setShowFilteredAccounts] = useState(false);
     const [filterMode, setFilterMode] = useState("champion"); // ou "skin"
+    const [selectedSkinsFilter, setSelectedSkinsFilter] = useState([]);
     const rankOptions = [
         { value: "", label: "Choose a rank" },
         ...["unranked", "iron", "bronze", "silver", "gold", "platinum", "emerald", "diamond", "master", "grandmaster", "challenger"].map((tier) => ({
@@ -1116,6 +1117,51 @@ function App() {
                                     setShowFilteredAccounts(false);
                                 }}
                                 placeholder="Champions..."
+                                styles={/* seus estilos aqui */}
+                            />
+                        ) : (
+                            <Select
+                                isMulti
+                                isSearchable={true}
+                                filterOption={(option, inputValue) => {
+                                    const normalized = inputValue.toLowerCase();
+                                    return option.data.searchTerms.some(term => term.includes(normalized));
+                                }}
+                                options={skins
+                                    .filter(skin => skin.num !== 0)
+                                    .map(skin => {
+                                        const fullId = `${skin.champId}_${skin.num}`;
+                                        return {
+                                            value: fullId,
+                                            label: (
+                                                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                                                    <img
+                                                        src={`https://ddragon.leagueoflegends.com/cdn/img/champion/loading/${getCorrectedChampionIdForSkin(skin.champId)}_${skin.num}.jpg`}
+                                                        alt={skin.name}
+                                                        style={{
+                                                            width: "36px",
+                                                            height: "64px",
+                                                            objectFit: "cover",
+                                                            borderRadius: "6px",
+                                                        }}
+                                                    />
+                                                    <span>{skin.name}</span>
+                                                </div>
+                                            ),
+                                            searchTerms: [
+                                                skin.name.toLowerCase(),
+                                                skin.champId.toLowerCase()
+                                            ]
+                                        };
+                                    })}
+                                onChange={(selectedOptions) => {
+                                    const selected = selectedOptions || [];
+                                    const skinIds = selected.map(opt => opt.value);
+                                    setSelectedSkinsFilter(skinIds);
+                                    setSelectedAccount("");
+                                    setShowFilteredAccounts(false);
+                                }}
+                                placeholder="Skins..."
                                 styles={{
                                     control: (base) => ({
                                         ...base,
@@ -1187,12 +1233,7 @@ function App() {
                                         gap: "8px",
                                     }),
                                 }}
-
                             />
-                        ) : (
-                            <p style={{ fontStyle: "italic", fontSize: "13px", color: isDarkMode ? "#aaa" : "#555" }}>
-                                (Filtro por skin ainda não implementado)
-                            </p>
                         )}
                     </div>
 
