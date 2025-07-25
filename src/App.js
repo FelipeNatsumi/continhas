@@ -1023,38 +1023,37 @@ function App() {
 
                     <div style={{ marginTop: "14px" }}>
                         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "6px" }}>
-                            <span style={{ fontWeight: "bold" }}>Filtro:</span>
-                            <div style={{ display: "flex", gap: "6px" }}>
-                                <button
-                                    onClick={() => setFilterMode("champion")}
-                                    style={{
-                                        padding: "4px 10px",
-                                        fontSize: "12px",
-                                        borderRadius: "6px",
-                                        border: "1px solid #999",
-                                        backgroundColor: filterMode === "champion" ? "#FF69B4" : (isDarkMode ? "#1e1e1e" : "#f0f0f0"),
-                                        color: filterMode === "champion" ? "#fff" : (isDarkMode ? "#fff" : "#000"),
-                                        cursor: "pointer",
-                                    }}
-                                >
-                                    By Champion
-                                </button>
-                                <button
-                                    onClick={() => setFilterMode("skin")}
-                                    style={{
-                                        padding: "4px 10px",
-                                        fontSize: "12px",
-                                        borderRadius: "6px",
-                                        border: "1px solid #999",
-                                        backgroundColor: filterMode === "skin" ? "#FF69B4" : (isDarkMode ? "#1e1e1e" : "#f0f0f0"),
-                                        color: filterMode === "skin" ? "#fff" : (isDarkMode ? "#fff" : "#000"),
-                                        cursor: "pointer",
-                                    }}
-                                >
-                                    By Skin
-                                </button>
-                            </div>
+                            <button
+                                onClick={() => setFilterMode("champion")}
+                                style={{
+                                    padding: "4px 10px",
+                                    fontSize: "12px",
+                                    borderRadius: "6px",
+                                    border: "1px solid #999",
+                                    backgroundColor: filterMode === "champion" ? "#FF69B4" : (isDarkMode ? "#1e1e1e" : "#f0f0f0"),
+                                    color: filterMode === "champion" ? "#fff" : (isDarkMode ? "#fff" : "#000"),
+                                    cursor: "pointer",
+                                }}
+                            >
+                                By Champion
+                            </button>
+
+                            <button
+                                onClick={() => setFilterMode("skin")}
+                                style={{
+                                    padding: "4px 10px",
+                                    fontSize: "12px",
+                                    borderRadius: "6px",
+                                    border: "1px solid #999",
+                                    backgroundColor: filterMode === "skin" ? "#FF69B4" : (isDarkMode ? "#1e1e1e" : "#f0f0f0"),
+                                    color: filterMode === "skin" ? "#fff" : (isDarkMode ? "#fff" : "#000"),
+                                    cursor: "pointer",
+                                }}
+                            >
+                                By Skin
+                            </button>
                         </div>
+
 
                         {/* Aqui mostra o filtro de campeão ou uma mensagem se estiver no modo skin */}
                         {filterMode === "champion" ? (
@@ -1118,76 +1117,76 @@ function App() {
                                 }}
                                 placeholder="Champions..."
                                 styles={{
-                control: (base) => ({
-                  ...base,
-                  backgroundColor: isDarkMode ? "#1e1e1e" : "#fff",
-                  color: isDarkMode ? "#fff" : "#000",
-                  border: "1px solid #ccc",
-                  borderRadius: "5px",
-                  height: "32px",
-                  minHeight: "32px",
-                  boxSizing: "border-box",
-                  padding: "0 4px",
-                  overflow: "hidden",
-                }),
-                valueContainer: (base) => ({
-                  ...base,
-                  height: "32px",
-                  padding: "0 4px",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "4px",
-                }),
-                multiValue: (base) => ({
-                  ...base,
-                  backgroundColor: "transparent",
-                  padding: "0",
-                  margin: "0",
-                }),
-                multiValueLabel: () => ({
-                  display: "flex",
-                  alignItems: "center",
-                }),
-                multiValueRemove: (base) => ({
-                  ...base,
-                  display: "none",
-                }),
-                input: (base) => ({
-                  ...base,
-                  margin: 0,
-                  padding: 0,
-                  height: "20px",
-                  color: isDarkMode ? "#fff" : "#000",
-                }),
-                placeholder: (base) => ({
-                  ...base,
-                  fontSize: "14px",
-                  color: isDarkMode ? "#aaa" : "#888",
-                }),
-                indicatorsContainer: (base) => ({
-                  ...base,
-                  height: "32px",
-                }),
-                dropdownIndicator: (base) => ({
-                  ...base,
-                  padding: "2px",
-                }),
-                menu: (base) => ({
-                  ...base,
-                  backgroundColor: isDarkMode ? "#1e1e1e" : "#fff",
-                }),
-                option: (base, state) => ({
-                  ...base,
-                  backgroundColor: state.isFocused
-                    ? isDarkMode ? "#333" : "#eee"
-                    : "transparent",
-                  color: isDarkMode ? "#fff" : "#000",
-                  padding: "6px 8px",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "8px",
-                }),
-              }}
+                                    control: (base) => ({
+                                        ...base,
+                                        backgroundColor: isDarkMode ? "#1e1e1e" : "#fff",
+                                        color: isDarkMode ? "#fff" : "#000",
+                                        border: "1px solid #ccc",
+                                        borderRadius: "5px",
+                                        height: "32px",
+                                        minHeight: "32px",
+                                        boxSizing: "border-box",
+                                        padding: "0 4px",
+                                        overflow: "hidden",
+                                    }),
+                                    valueContainer: (base) => ({
+                                        ...base,
+                                        height: "32px",
+                                        padding: "0 4px",
+                                        display: "flex",
+                                        alignItems: "center",
+                                        gap: "4px",
+                                    }),
+                                    multiValue: (base) => ({
+                                        ...base,
+                                        backgroundColor: "transparent",
+                                        padding: "0",
+                                        margin: "0",
+                                    }),
+                                    multiValueLabel: () => ({
+                                        display: "flex",
+                                        alignItems: "center",
+                                    }),
+                                    multiValueRemove: (base) => ({
+                                        ...base,
+                                        display: "none",
+                                    }),
+                                    input: (base) => ({
+                                        ...base,
+                                        margin: 0,
+                                        padding: 0,
+                                        height: "20px",
+                                        color: isDarkMode ? "#fff" : "#000",
+                                    }),
+                                    placeholder: (base) => ({
+                                        ...base,
+                                        fontSize: "14px",
+                                        color: isDarkMode ? "#aaa" : "#888",
+                                    }),
+                                    indicatorsContainer: (base) => ({
+                                        ...base,
+                                        height: "32px",
+                                    }),
+                                    dropdownIndicator: (base) => ({
+                                        ...base,
+                                        padding: "2px",
+                                    }),
+                                    menu: (base) => ({
+                                        ...base,
+                                        backgroundColor: isDarkMode ? "#1e1e1e" : "#fff",
+                                    }),
+                                    option: (base, state) => ({
+                                        ...base,
+                                        backgroundColor: state.isFocused
+                                            ? isDarkMode ? "#333" : "#eee"
+                                            : "transparent",
+                                        color: isDarkMode ? "#fff" : "#000",
+                                        padding: "6px 8px",
+                                        display: "flex",
+                                        alignItems: "center",
+                                        gap: "8px",
+                                    }),
+                                }}
 
                             />
                         ) : (
